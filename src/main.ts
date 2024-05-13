@@ -3,7 +3,7 @@ import * as mongoose from "mongoose";
 
 import { config } from "./configs/config";
 import { ApiError } from "./errors/api-error";
-import {authRouter} from "./routers/auth.router";
+import { authRouter } from "./routers/auth.router";
 
 const app = express();
 

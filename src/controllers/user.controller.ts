@@ -1,5 +1,3 @@
-class UserController {
-
-}
+class UserController {}
 
 export const userController = new UserController();

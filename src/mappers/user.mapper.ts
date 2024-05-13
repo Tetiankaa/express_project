@@ -13,18 +13,18 @@ export class UserMapper {
     };
   }
   public static toListDto(users: IUser[]): IUserDTO[] {
-      return users.map(UserMapper.toDto);
+    return users.map(UserMapper.toDto);
   }
 
-  public static toUser(dto: IUserDTO): IUser{
-      return {
-            _id: dto._id,
-          email: dto.email,
-          accountType: dto.accountType,
-          firstName: dto.firstName,
-          lastName: dto.lastName,
-          phone: dto.phone,
-          role: dto.role
-      }
+  public static toUser(dto: IUserDTO): IUser {
+    return {
+      _id: dto._id,
+      email: dto.email,
+      accountType: dto.accountType,
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      phone: dto.phone,
+      role: dto.role,
+    };
   }
- }
+}

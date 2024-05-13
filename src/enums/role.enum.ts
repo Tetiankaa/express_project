@@ -1,6 +1,6 @@
 export enum ERole {
-  BUYER = "buyer",
-  SELLER = "seller",
-  MANAGER = "manager",
-  ADMINISTRATOR = "administrator",
+  BUYER = "BUYER",
+  SELLER = "SELLER",
+  MANAGER = "MANAGER",
+  ADMINISTRATOR = "ADMINISTRATOR",
 }
