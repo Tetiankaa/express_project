@@ -1,3 +1,7 @@
+import { errorMessages } from "../constants/error-messages.constant";
+import { statusCode } from "../constants/status-codes.constant";
+import { ApiError } from "../errors/api-error";
+import { IAuthCredentials } from "../interfaces/auth.interface";
 import { ITokenResponse } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
 import { tokenRepository } from "../repositories/token.repository";
@@ -15,21 +19,58 @@ class AuthService {
       password: hashedPassword,
     });
 
+    const tokens = await this.generateTokens(newUser);
+    return {
+      user: newUser,
+      tokens,
+    };
+  }
+
+  public async signIn(
+    credentials: IAuthCredentials,
+  ): Promise<{ user: IUser; tokens: ITokenResponse }> {
+    const user = await userRepository.findByParams({
+      email: credentials.email,
+    });
+    if (!user) {
+      this.throwWrongCredentialsError();
+    }
+
+    const isMatched = await passwordService.compare(
+      credentials.password,
+      user.password,
+    );
+    if (!isMatched) {
+      this.throwWrongCredentialsError();
+    }
+    const tokens = await this.generateTokens(user);
+    return {
+      user,
+      tokens,
+    };
+  }
+  public async refresh():any {
+
+  }
+  private throwWrongCredentialsError(): never {
+    throw new ApiError(
+      statusCode.UNAUTHORIZED,
+      errorMessages.WRONG_EMAIL_OR_PASSWORD,
+    );
+  }
+  private async generateTokens(user: IUser): Promise<ITokenResponse> {
     const tokens = tokenService.generateTokenPair({
-      _userId: newUser._id,
-      role: newUser.role,
-      accountType: newUser.accountType,
+      _userId: user._id,
+      role: user.role,
+      accountType: user.accountType,
     });
 
     await tokenRepository.create({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-      _userId: newUser._id,
+      _userId: user._id,
     });
-    return {
-      user: newUser,
-      tokens,
-    };
+    return tokens;
   }
 }
 

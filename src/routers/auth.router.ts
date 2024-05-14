@@ -13,6 +13,11 @@ router.post(
   authMiddleware.isEmailExist,
   authController.signUp,
 );
-router.post("/sign-in", commonMiddleware.isBodyValid(UserValidator.login));
+router.post(
+  "/sign-in",
+  commonMiddleware.isBodyValid(UserValidator.login),
+  authController.signIn,
+);
+router.post("/refresh", authController.refresh);
 
 export const authRouter = router;
