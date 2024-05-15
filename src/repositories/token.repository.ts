@@ -10,6 +10,9 @@ class TokenRepository {
   public async findByParams(params: FilterQuery<ITokenDB>): Promise<ITokenDB> {
     return await Token.findOne(params);
   }
+  public async deleteById(id: string): Promise<void> {
+    await Token.deleteOne({ _id: id });
+  }
 }
 
 export const tokenRepository = new TokenRepository();

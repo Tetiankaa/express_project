@@ -49,8 +49,14 @@ class AuthService {
       tokens,
     };
   }
-  public async refresh():any {
+  public async refresh(
+    userId: string,
+    oldTokenId: string,
+  ): Promise<ITokenResponse> {
+    const user = await userRepository.findByParams({ _id: userId });
+    await tokenRepository.deleteById(oldTokenId);
 
+    return await this.generateTokens(user);
   }
   private throwWrongCredentialsError(): never {
     throw new ApiError(
@@ -66,8 +72,7 @@ class AuthService {
     });
 
     await tokenRepository.create({
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
+      ...tokens,
       _userId: user._id,
     });
     return tokens;

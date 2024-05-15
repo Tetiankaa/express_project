@@ -4,6 +4,7 @@ import { errorMessages } from "../constants/error-messages.constant";
 import { statusCode } from "../constants/status-codes.constant";
 import { ETokenType } from "../enums/token-type.enum";
 import { ApiError } from "../errors/api-error";
+import { ITokenDB } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
@@ -26,7 +27,7 @@ class AuthMiddleware {
       next(e);
     }
   }
-  public async verifyToken(type: ETokenType) {
+  public verifyToken(type: ETokenType) {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
         const token = req.headers.authorization;
@@ -37,9 +38,25 @@ class AuthMiddleware {
           );
         }
         const payload = tokenService.verifyToken(token, type);
+        let tokenPair: ITokenDB;
+        if (type === ETokenType.ACCESS) {
+          tokenPair = await tokenRepository.findByParams({
+            accessToken: token,
+          });
+        } else if (type === ETokenType.REFRESH) {
+          tokenPair = await tokenRepository.findByParams({
+            refreshToken: token,
+          });
+        }
 
-        const tokenPair = await tokenRepository.findByParams({});
+        if (!tokenPair) {
+          throw new ApiError(
+            statusCode.UNAUTHORIZED,
+            errorMessages.INVALID_TOKEN,
+          );
+        }
         req.res.locals.jwtPayload = payload;
+        req.res.locals.tokenPair = tokenPair;
         next();
       } catch (e) {
         next(e);

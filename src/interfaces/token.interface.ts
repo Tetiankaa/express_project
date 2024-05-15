@@ -8,4 +8,5 @@ export interface ITokenResponse extends IToken {
 }
 export interface ITokenDB extends IToken {
   _userId: string;
+  _id?: string;
 }
