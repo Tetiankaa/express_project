@@ -4,4 +4,8 @@ export const errorMessages = {
   WRONG_TOKEN_TYPE: "Wrong token type",
   INVALID_TOKEN: "Token is not valid",
   NO_TOKEN_PROVIDED: "No token provided",
+  INVALID_ID: "Invalid ID",
+  USER_NOT_FOUND: "User was not found",
+  ONE_POST_FOR_BASIC_ACCOUNT:
+    "Basic account holders can only create one car for sale.",
 };

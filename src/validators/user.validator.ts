@@ -48,4 +48,9 @@ export class UserValidator {
     email: this.email.required(),
     password: this.password.required(),
   });
+  public static update = Joi.object({
+    phone: this.phone,
+    firstName: this.firstName,
+    lastName: this.lastName,
+  });
 }

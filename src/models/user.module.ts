@@ -1,7 +1,7 @@
 import { Schema } from "mongoose";
 import * as mongoose from "mongoose";
 
-import { EAccountType } from "../enums/account.enum";
+import { EAccountType } from "../enums/account-type.enum";
 import { ERole } from "../enums/role.enum";
 import { IUser } from "../interfaces/user.interface";
 
