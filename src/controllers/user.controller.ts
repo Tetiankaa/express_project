@@ -57,6 +57,16 @@ class UserController {
       next(e);
     }
   }
+  public async upgradeToPremium(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { _userId } = req.res.locals.jwtPayload as IJwtPayload;
+      const user = await userService.upgradeToPremium(_userId);
+      const response = UserMapper.toDto(user);
+      res.status(statusCode.CREATED).json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 
 export const userController = new UserController();

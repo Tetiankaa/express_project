@@ -1,9 +1,10 @@
-import { errorMessages } from "../constants/error-messages.constant";
-import { statusCode } from "../constants/status-codes.constant";
-import { ApiError } from "../errors/api-error";
-import { IUser } from "../interfaces/user.interface";
-import { tokenRepository } from "../repositories/token.repository";
-import { userRepository } from "../repositories/user.repository";
+import {errorMessages} from "../constants/error-messages.constant";
+import {statusCode} from "../constants/status-codes.constant";
+import {ApiError} from "../errors/api-error";
+import {IUser} from "../interfaces/user.interface";
+import {tokenRepository} from "../repositories/token.repository";
+import {userRepository} from "../repositories/user.repository";
+import {EAccountType} from "../enums/account-type.enum";
 
 class UserService {
   public async getUsers(): Promise<IUser[]> {
@@ -23,6 +24,13 @@ class UserService {
   public async updateMe(userId: string, data: Partial<IUser>): Promise<IUser> {
     const user = await this.findUserOrThrow(userId);
     return await userRepository.updateById(user._id, data);
+  }
+  public async upgradeToPremium(userId: string): Promise<IUser> {
+    const user = await this.findUserOrThrow(userId);
+    if (user.accountType === EAccountType.PREMIUM) {
+     return user;
+    }
+    return await userRepository.updateById(user._id, {accountType: EAccountType.PREMIUM})
   }
   private async findUserOrThrow(userId: string): Promise<IUser> {
     const user = await userRepository.getById(userId);

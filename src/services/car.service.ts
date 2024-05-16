@@ -13,12 +13,10 @@ class CarService {
     car: Partial<ICar>,
     jwtPayload: IJwtPayload,
   ): Promise<ICarResponse> {
-    const userPosts = await postRepository.findByParams({
-      user_id: jwtPayload._userId,
-    });
+    const postsCount = await postRepository.countDocumentsByParams({_id: jwtPayload._userId});
     if (
       jwtPayload.accountType === EAccountType.BASIC &&
-      userPosts.length >= 1
+      postsCount >= 1
     ) {
       throw new ApiError(
         statusCode.FORBIDDEN,

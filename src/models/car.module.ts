@@ -12,11 +12,11 @@ const carSchema = new Schema(
     city: { type: String, required: true },
     color: { type: String, required: true },
     description: { type: String, required: true },
-    photo: { type: String, required: true },
+    photo: { type: String }, //TODO photo make required
     year: { type: Number, required: true },
     mileage: { type: Number, required: true },
     price: { type: Number, required: true },
-    currency: { type: String, enum: ECurrency },
+    currency: { type: String, enum: ECurrency }, //TODO create DB
   },
   {
     timestamps: true,
