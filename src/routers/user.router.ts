@@ -25,6 +25,10 @@ router.put(
   commonMiddleware.isBodyValid(UserValidator.update),
   userController.updateMe,
 );
-router.put("/me/upgrade-premium", authMiddleware.verifyToken(ETokenType.ACCESS), userController.upgradeToPremium)
+router.put(
+  "/me/upgrade-premium",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  userController.upgradeToPremium,
+);
 router.get("/:id", commonMiddleware.isIdValid, userController.getUser);
 export const userRouter = router;

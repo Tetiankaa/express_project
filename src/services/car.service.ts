@@ -4,8 +4,10 @@ import { EAccountType } from "../enums/account-type.enum";
 import { EPostStatus } from "../enums/post-status.enum";
 import { ApiError } from "../errors/api-error";
 import { ICar, ICarResponse } from "../interfaces/car.interface";
+import { ICurrency } from "../interfaces/currency.interface";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { carRepository } from "../repositories/car.repository";
+import { currencyRepository } from "../repositories/currency.repository";
 import { postRepository } from "../repositories/post.repository";
 
 class CarService {
@@ -13,11 +15,11 @@ class CarService {
     car: Partial<ICar>,
     jwtPayload: IJwtPayload,
   ): Promise<ICarResponse> {
-    const postsCount = await postRepository.countDocumentsByParams({_id: jwtPayload._userId});
-    if (
-      jwtPayload.accountType === EAccountType.BASIC &&
-      postsCount >= 1
-    ) {
+    const postsCount = await postRepository.countDocumentsByParams({
+      user_id: jwtPayload._userId,
+    });
+    console.log(jwtPayload)
+    if (jwtPayload.accountType === EAccountType.BASIC && postsCount >= 1) {
       throw new ApiError(
         statusCode.FORBIDDEN,
         errorMessages.ONE_POST_FOR_BASIC_ACCOUNT,
@@ -38,5 +40,12 @@ class CarService {
       status: post.status,
     };
   }
+  public async getCurrencies(): Promise<{ data: ICurrency[] }> {
+    const currencies = await currencyRepository.getAll();
+    return {
+      data: currencies,
+    };
+  }
 }
+
 export const carService = new CarService();

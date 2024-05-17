@@ -19,6 +19,14 @@ class CarController {
       next(e);
     }
   }
+  public async getCurrencies(req: Request, res: Response, next: NextFunction) {
+    try {
+      const currencies = await carService.getCurrencies();
+      res.json(currencies);
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 
 export const carController = new CarController();

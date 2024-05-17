@@ -16,7 +16,7 @@ const carSchema = new Schema(
     year: { type: Number, required: true },
     mileage: { type: Number, required: true },
     price: { type: Number, required: true },
-    currency: { type: String, enum: ECurrency }, //TODO create DB
+    currency: { type: String, enum: ECurrency, required: true }, //TODO create DB
   },
   {
     timestamps: true,
