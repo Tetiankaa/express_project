@@ -64,7 +64,7 @@ class AuthService {
       errorMessages.WRONG_EMAIL_OR_PASSWORD,
     );
   }
-  private async generateTokens(user: IUser): Promise<ITokenResponse> {
+  public async generateTokens(user: IUser): Promise<ITokenResponse> {
     const tokens = tokenService.generateTokenPair({
       _userId: user._id,
       role: user.role,

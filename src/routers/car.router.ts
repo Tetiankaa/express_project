@@ -15,4 +15,11 @@ router.post(
   carController.saveCar,
 );
 router.get("/currencies", carController.getCurrencies);
+router.get("/brands", carController.getBrands);
+router.post(
+  "/report-missing-brand-model",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  commonMiddleware.isBodyValid(CarValidator.reportMissingBrandModel),
+  carController.reportMissingBrandModel,
+);
 export const carRouter = router;

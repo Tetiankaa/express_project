@@ -39,6 +39,14 @@ export class CarValidator {
       "any.required": "{#label} is a required field.",
       "any.only": "{#label} must be one of the following values: {#valids}",
     });
+  private static email = Joi.string()
+    .pattern(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/)
+    .messages({
+      "string.pattern.base":
+        "{#label} address must be in a valid format (Example: user@example.com)",
+      "string.empty": "{#label} cannot be an empty field",
+      "any.required": "{#label} is a required field",
+    });
 
   public static create = Joi.object({
     brand: this.carFieldValidation.label("Brand").required(),
@@ -51,5 +59,12 @@ export class CarValidator {
     mileage: this.numericFieldValidation.label("Mileage").required(),
     year: this.year.label("Year").required(),
     currency: this.currency.label("Currency").required(),
+  });
+  public static reportMissingBrandModel = Joi.object({
+    brand: this.carFieldValidation.label("Brand").required(),
+    model: this.carFieldValidation.label("Model").required(),
+    email: this.email.label("Email").required(),
+    fullName: this.baseStringValidation.label("Full name"),
+    notes: this.description.label("Notes"),
   });
 }

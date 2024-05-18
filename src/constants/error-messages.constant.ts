@@ -8,4 +8,5 @@ export const errorMessages = {
   USER_NOT_FOUND: "User was not found",
   ONE_POST_FOR_BASIC_ACCOUNT:
     "Basic account holders can only create one car for sale.",
+  NOT_AUTHENTICATED_EMAIL: "Email is not belong to authenticated user",
 };

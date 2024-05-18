@@ -6,7 +6,7 @@ import { ITokenDB, ITokenResponse } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
-import { tokenService } from "./token.service";
+import {authService} from "./auth.service";
 
 class UserService {
   public async getUsers(): Promise<IUser[]> {
@@ -39,19 +39,10 @@ class UserService {
       accountType: EAccountType.PREMIUM,
     });
     await tokenRepository.deleteById(oldTokenPair._id);
-    const newTokens = tokenService.generateTokenPair({
-      _userId: updatedUser._id,
-      role: updatedUser.role,
-      accountType: updatedUser.accountType,
-    });
-    await tokenRepository.create({
-      _userId: updatedUser._id,
-      refreshToken: newTokens.refreshToken,
-      accessToken: newTokens.accessToken,
-    });
+    const tokens = await authService.generateTokens(updatedUser);
     return {
       user: updatedUser,
-      tokens: newTokens,
+      tokens,
     };
   }
   private async findUserOrThrow(userId: string): Promise<IUser> {
