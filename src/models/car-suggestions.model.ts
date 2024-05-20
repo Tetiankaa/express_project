@@ -4,7 +4,7 @@ import * as mongoose from "mongoose";
 import { IMissingBrandModel } from "../interfaces/missing-brand-model.interface";
 import { User } from "./user.module";
 
-const schemaUserSuggestions = new Schema(
+const schemaCarSuggestions = new Schema(
   {
     _userId: { type: Types.ObjectId, ref: User, required: true },
     email: { type: String, required: true },
@@ -12,11 +12,12 @@ const schemaUserSuggestions = new Schema(
     notes: { type: String },
     brand: { type: String, required: true },
     model: { type: String, required: true },
+    isResolved: { type: Boolean, default: false },
   },
   { timestamps: true, versionKey: false },
 );
 
-export const UserSuggestions = mongoose.model<IMissingBrandModel>(
-  "user_suggestions",
-  schemaUserSuggestions,
+export const CarSuggestions = mongoose.model<IMissingBrandModel>(
+  "car_suggestions",
+  schemaCarSuggestions,
 );

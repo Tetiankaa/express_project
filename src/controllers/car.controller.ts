@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
 import { statusCode } from "../constants/status-codes.constant";
+import { IBrandModelInput } from "../interfaces/brand-model-input.interface";
 import { ICar } from "../interfaces/car.interface";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IMissingBrandModel } from "../interfaces/missing-brand-model.interface";
@@ -51,6 +52,19 @@ class CarController {
       const { _userId } = req.res.locals.jwtPayload as IJwtPayload;
       const response = await carService.reportMissingBrandModel(body, _userId);
       res.status(statusCode.CREATED).send(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async createBrandOrModel(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const body = req.body as IBrandModelInput;
+      const response = await carService.createBrandOrModel(body);
+      res.status(statusCode.CREATED).json(response);
     } catch (e) {
       next(e);
     }

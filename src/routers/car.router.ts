@@ -14,8 +14,16 @@ router.post(
   commonMiddleware.isBodyValid(CarValidator.create),
   carController.saveCar,
 );
+
 router.get("/currencies", carController.getCurrencies);
 router.get("/brands", carController.getBrands);
+router.post(
+  "/brands",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  authMiddleware.isAdminOrManager,
+  commonMiddleware.isBodyValid(CarValidator.createMissingBrandModel),
+  carController.createBrandOrModel,
+);
 router.post(
   "/report-missing-brand-model",
   authMiddleware.verifyToken(ETokenType.ACCESS),

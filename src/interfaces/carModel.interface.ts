@@ -1,3 +1,3 @@
 export interface ICarModel {
-    name: string
+  name: string;
 }

@@ -2,7 +2,7 @@ import { Schema, Types } from "mongoose";
 import * as mongoose from "mongoose";
 
 import { EPostStatus } from "../enums/post-status.enum";
-import { IPost } from "../interfaces/post.interface";
+import { IPostDetails } from "../interfaces/post.interface";
 import { Car } from "./car.module";
 import { User } from "./user.module";
 
@@ -19,4 +19,4 @@ const postSchema = new Schema(
   },
 );
 
-export const Post = mongoose.model<IPost>("posts", postSchema);
+export const Post = mongoose.model<IPostDetails>("posts", postSchema);

@@ -2,8 +2,10 @@ import { NextFunction, Request, Response } from "express";
 
 import { errorMessages } from "../constants/error-messages.constant";
 import { statusCode } from "../constants/status-codes.constant";
+import { ERole } from "../enums/role.enum";
 import { ETokenType } from "../enums/token-type.enum";
 import { ApiError } from "../errors/api-error";
+import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { ITokenDB } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
 import { tokenRepository } from "../repositories/token.repository";
@@ -62,6 +64,27 @@ class AuthMiddleware {
         next(e);
       }
     };
+  }
+  public async isAdminOrManager(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
+      if (
+        jwtPayload.role !== ERole.MANAGER &&
+        jwtPayload.role !== ERole.ADMINISTRATOR
+      ) {
+        throw new ApiError(
+          statusCode.UNAUTHORIZED,
+          errorMessages.NOT_ALLOWED_CREATE_BRAND,
+        );
+      }
+      next();
+    } catch (e) {
+      next(e);
+    }
   }
 }
 

@@ -1,5 +1,5 @@
-import {ICar, ICarDto, ICarResponse} from "../interfaces/car.interface";
-import {ITokenResponse} from "../interfaces/token.interface";
+import { ICar, ICarDto, ICarResponse } from "../interfaces/car.interface";
+import { ITokenResponse } from "../interfaces/token.interface";
 
 export class CarMapper {
   public static toDto(car: ICar): ICarDto {
@@ -37,15 +37,17 @@ export class CarMapper {
   public static toListDto(cars: ICar[]): ICarDto[] {
     return cars.map(CarMapper.toDto);
   }
-  public static toResponseDto(data: ICarResponse, tokens?: ITokenResponse): { data: ICarResponse, tokens: ITokenResponse } {
+  public static toResponseDto(
+    data: ICarResponse,
+    tokens?: ITokenResponse,
+  ): { data: ICarResponse; tokens: ITokenResponse } {
     return {
-     data:{
-       car: CarMapper.toDto(data.car),
-       profanityEdits: data.profanityEdits,
-       status: data.status,
-     },
-      tokens
-
+      data: {
+        car: CarMapper.toDto(data.car),
+        profanityEdits: data.profanityEdits,
+        status: data.status,
+      },
+      tokens,
     };
   }
 }

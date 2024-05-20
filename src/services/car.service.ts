@@ -6,6 +6,7 @@ import { EPostStatus } from "../enums/post-status.enum";
 import { ERole } from "../enums/role.enum";
 import { ApiError } from "../errors/api-error";
 import { IBrandModels } from "../interfaces/brand.interface";
+import { IBrandModelInput } from "../interfaces/brand-model-input.interface";
 import { ICar, ICarResponse } from "../interfaces/car.interface";
 import { ICurrency } from "../interfaces/currency.interface";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
@@ -13,11 +14,11 @@ import { IMissingBrandModel } from "../interfaces/missing-brand-model.interface"
 import { ITokenResponse } from "../interfaces/token.interface";
 import { brandRepository } from "../repositories/brand.repository";
 import { carRepository } from "../repositories/car.repository";
+import { carSuggestionsRepository } from "../repositories/car-suggestions.repository";
 import { currencyRepository } from "../repositories/currency.repository";
 import { postRepository } from "../repositories/post.repository";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
-import { userSuggestionsRepository } from "../repositories/user-suggestions.repository";
 import { authService } from "./auth.service";
 import { emailService } from "./email.service";
 
@@ -85,7 +86,7 @@ class CarService {
       );
     }
 
-    const suggestion = await userSuggestionsRepository.create({
+    const suggestion = await carSuggestionsRepository.create({
       ...report,
       _userId: userId,
     });
@@ -93,6 +94,34 @@ class CarService {
       ...report,
     });
     return suggestion;
+  }
+  public async createBrandOrModel(
+    data: IBrandModelInput,
+  ): Promise<IBrandModels> {
+    const { brand, model } = data;
+    const isBrandAndModelExist = await brandRepository.findByParams({
+      brand,
+      model,
+    });
+
+    if (isBrandAndModelExist) {
+      throw new ApiError(
+        statusCode.BAD_REQUEST,
+        errorMessages.BRAND_MODEL_ALREADY_EXIST,
+      );
+    }
+
+    const existingBrand = await brandRepository.findByParams({ brand });
+
+    if (existingBrand) {
+      existingBrand.models.push({ name: model });
+      return await brandRepository.updateById(existingBrand._id, existingBrand);
+    } else {
+      return await brandRepository.create({
+        name: brand,
+        models: [{ name: model }],
+      });
+    }
   }
 }
 

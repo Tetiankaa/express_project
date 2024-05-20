@@ -67,4 +67,8 @@ export class CarValidator {
     fullName: this.baseStringValidation.label("Full name"),
     notes: this.description.label("Notes"),
   });
+  public static createMissingBrandModel = Joi.object({
+    brand: this.carFieldValidation.label("Brand").required(),
+    model: this.carFieldValidation.label("Model").required(),
+  });
 }

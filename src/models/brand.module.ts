@@ -1,13 +1,19 @@
-import {Schema} from "mongoose";
+import { Schema } from "mongoose";
 import * as mongoose from "mongoose";
-import { IBrandModels} from "../interfaces/brand.interface";
+
+import { IBrandModels } from "../interfaces/brand.interface";
 
 const modelSchema = new Schema({
-    name: {type: String, required: true}
-})
-const brandSchema = new Schema({
-    name: {type: String, required: true, unique: true},
-    models:[modelSchema],
-})
+  name: { type: String, required: true },
+});
+const brandSchema = new Schema(
+  {
+    name: { type: String, required: true, unique: true },
+    models: [modelSchema],
+  },
+  {
+    versionKey: false,
+  },
+);
 
 export const Brand = mongoose.model<IBrandModels>("brands", brandSchema);

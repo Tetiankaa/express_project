@@ -9,4 +9,6 @@ export const errorMessages = {
   ONE_POST_FOR_BASIC_ACCOUNT:
     "Basic account holders can only create one car for sale.",
   NOT_AUTHENTICATED_EMAIL: "Email is not belong to authenticated user",
+  NOT_ALLOWED_CREATE_BRAND: "Only admin or manager can add new brand",
+  BRAND_MODEL_ALREADY_EXIST: "Brand and model already exist.",
 };
