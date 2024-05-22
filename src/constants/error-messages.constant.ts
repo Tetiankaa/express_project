@@ -11,4 +11,6 @@ export const errorMessages = {
   NOT_AUTHENTICATED_EMAIL: "Email is not belong to authenticated user",
   NOT_ALLOWED_CREATE_BRAND: "Only admin or manager can add new brand",
   BRAND_MODEL_ALREADY_EXIST: "Brand and model already exist.",
+  POST_NOT_FOUND: "Post was not found",
+  ACCESS_DENIED: "You do not have permission to access this post",
 };

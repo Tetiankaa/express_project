@@ -10,7 +10,7 @@ export class AuthMapper {
   }): IAuthResponse {
     return {
       tokens: data.tokens,
-      user: UserMapper.toDto(data.user),
+      user: UserMapper.toPrivateDto(data.user),
     };
   }
 }

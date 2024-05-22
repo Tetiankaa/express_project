@@ -1,15 +1,17 @@
-import { NextFunction, Request, Response } from "express";
+import {NextFunction, Request, Response} from "express";
 
-import { IQuery } from "../interfaces/query.interface";
-import { PostMapper } from "../mappers/post.mapper";
-import { postService } from "../services/post.service";
+import {IQuery} from "../interfaces/query.interface";
+import {PostMapper} from "../mappers/post.mapper";
+import {postService} from "../services/post.service";
+import {IJwtPayload} from "../interfaces/jwt-payload.interface";
+import {statusCode} from "../constants/status-codes.constant";
 
 class PostController {
   public async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const query = req.query as IQuery;
       const posts = await postService.getAll(query);
-      const response = PostMapper.toPostsWithCarResponse(posts);
+      const response = PostMapper.toPublicResponseList(posts);
       res.json(response);
     } catch (e) {
       next(e);
@@ -17,6 +19,42 @@ class PostController {
   }
   public async getMyPosts(req: Request, res: Response, next: NextFunction) {
     try {
+      const {_userId} = req.res.locals.jwtPayload as IJwtPayload;
+      const query = req.query as IQuery;
+      const posts = await postService.getMyPosts(_userId, query);
+      const response = PostMapper.toPrivateResponseList(posts);
+      res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async getPublicPostById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.params.id;
+      const post = await postService.getPublicPostById(id);
+      const response = PostMapper.toPublicPost(post);
+      res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async getPrivatePostById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.params.id;
+      const {_userId} = req.res.locals.jwtPayload as IJwtPayload;
+      const post = await postService.getPrivatePostById(id, _userId);
+      const response = PostMapper.toPrivatePost(post);
+      res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async deletePostById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.params.id;
+      const {_userId} = req.res.locals.jwtPayload as IJwtPayload;
+      await postService.deletePostById(id, _userId);
+      res.sendStatus(statusCode.NO_CONTENT)
     } catch (e) {
       next(e);
     }

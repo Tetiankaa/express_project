@@ -12,7 +12,7 @@ class UserController {
   public async getUsers(req: Request, res: Response, next: NextFunction) {
     try {
       const users = await userService.getUsers();
-      const response = UserMapper.toListDto(users);
+      const response = UserMapper.toPublicListDto(users);
       res.json(response);
     } catch (e) {
       next(e);
@@ -22,7 +22,7 @@ class UserController {
     try {
       const userId = req.params.id;
       const user = await userService.getUser(userId);
-      const response = UserMapper.toDto(user);
+      const response = UserMapper.toPublicDto(user);
       res.json(response);
     } catch (e) {
       next(e);
@@ -32,7 +32,7 @@ class UserController {
     try {
       const { _userId } = req.res.locals.jwtPayload as IJwtPayload;
       const user = await userService.getMe(_userId);
-      const response = UserMapper.toDto(user);
+      const response = UserMapper.toPrivateDto(user);
       res.json(response);
     } catch (e) {
       next(e);
@@ -53,7 +53,7 @@ class UserController {
       const { _userId } = req.res.locals.jwtPayload as IJwtPayload;
       const data = req.body as Partial<IUser>;
       const user = await userService.updateMe(_userId, data);
-      const response = UserMapper.toDto(user);
+      const response = UserMapper.toPrivateDto(user);
       res.status(statusCode.CREATED).json(response);
     } catch (e) {
       next(e);

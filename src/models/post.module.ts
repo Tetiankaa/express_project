@@ -2,7 +2,7 @@ import { Schema, Types } from "mongoose";
 import * as mongoose from "mongoose";
 
 import { EPostStatus } from "../enums/post-status.enum";
-import { IPostDetails } from "../interfaces/post.interface";
+import {IPostBasic} from "../interfaces/post.interface";
 import { Car } from "./car.module";
 import { User } from "./user.module";
 
@@ -12,6 +12,7 @@ const postSchema = new Schema(
     car_id: { type: Types.ObjectId, ref: Car, required: true },
     status: { type: String, enum: EPostStatus, required: true },
     profanityEdits: { type: Number, required: true },
+    isDeleted:{type: Boolean, default: false}
   },
   {
     versionKey: false,
@@ -19,4 +20,4 @@ const postSchema = new Schema(
   },
 );
 
-export const Post = mongoose.model<IPostDetails>("posts", postSchema);
+export const Post = mongoose.model<IPostBasic>("posts", postSchema);

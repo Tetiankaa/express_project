@@ -17,6 +17,6 @@ export interface IUserDTO {
   phone: string;
   firstName: string;
   lastName: string;
-  role: ERole;
-  accountType: EAccountType;
+  role?: ERole;
+  accountType?: EAccountType;
 }

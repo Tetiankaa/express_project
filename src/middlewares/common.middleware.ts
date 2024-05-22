@@ -23,8 +23,8 @@ class CommonMiddleware {
   }
   public isIdValid(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.params.id;
-      if (!isObjectIdOrHexString(userId)) {
+      const id = req.params.id;
+      if (!isObjectIdOrHexString(id)) {
         throw new ApiError(statusCode.NOT_FOUND, errorMessages.INVALID_ID);
       }
       next();

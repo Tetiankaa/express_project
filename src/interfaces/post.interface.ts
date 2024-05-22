@@ -1,23 +1,19 @@
 import { EPostStatus } from "../enums/post-status.enum";
-import {ICar, ICarDto} from "./car.interface";
 
 export interface IPostBasic {
   _id: string;
-  user_id?: string;
   createdAt: string;
+  isDeleted?: boolean;
+  user_id?: string;
+  car_id?: string;
+  status?: EPostStatus;
+  profanityEdits?: number;
+}
+export interface IPostWithCarAndUser<T1,T2> extends IPostBasic{
+  car: T1;
+  user: T2;
 }
 
-export interface IPostDetails extends IPostBasic {
-  car_id: string;
-  status: EPostStatus;
-  profanityEdits: number;
-}
-export interface IPostWithCar extends IPostBasic {
-  car: ICar;
-}
-export interface IPostWithCarDto extends IPostBasic {
-  car: ICarDto;
-}
 export interface IPagination {
   total: number;
   page: number;

@@ -7,6 +7,8 @@ import { IUser } from "../interfaces/user.interface";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
 import {authService} from "./auth.service";
+import {postRepository} from "../repositories/post.repository";
+import {carRepository} from "../repositories/car.repository";
 
 class UserService {
   public async getUsers(): Promise<IUser[]> {
@@ -19,8 +21,18 @@ class UserService {
     return await this.findUserOrThrow(userId);
   }
   public async deleteMe(userId: string): Promise<void> {
+    console.log(userId)
     await this.findUserOrThrow(userId);
-    await tokenRepository.deleteByParams({ _userId: userId });
+    await tokenRepository.deleteManyByParams({ _userId: userId });
+    const posts = await postRepository.findByParams({user_id: userId});
+    if (posts)  {
+    await Promise.all(
+         posts.map(async (post)=>{
+           await carRepository.deleteById(post.car_id)
+         })
+     )
+    }
+    await postRepository.deleteManyByParams({user_id: userId})
     await userRepository.deleteById(userId);
   }
   public async updateMe(userId: string, data: Partial<IUser>): Promise<IUser> {

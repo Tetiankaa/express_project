@@ -1,7 +1,16 @@
 import { IUser, IUserDTO } from "../interfaces/user.interface";
 
 export class UserMapper {
-  public static toDto(user: IUser): IUserDTO {
+  public static toPublicDto(user: IUser): IUserDTO {
+    return {
+      _id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+    };
+  }
+  public static toPrivateDto(user: IUser): IUserDTO {
     return {
       _id: user._id,
       email: user.email,
@@ -12,8 +21,8 @@ export class UserMapper {
       role: user.role,
     };
   }
-  public static toListDto(users: IUser[]): IUserDTO[] {
-    return users.map(UserMapper.toDto);
+  public static toPublicListDto(users: IUser[]): IUserDTO[] {
+    return users.map(UserMapper.toPublicDto);
   }
 
   public static toUser(dto: IUserDTO): IUser {
