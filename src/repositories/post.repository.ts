@@ -1,16 +1,19 @@
-import { FilterQuery } from "mongoose";
+import { FilterQuery, UpdateQuery } from "mongoose";
 
-import {IPostBasic, IPostResponse} from "../interfaces/post.interface";
+import { IPostBasic, IPostResponse } from "../interfaces/post.interface";
 import { IQuery } from "../interfaces/query.interface";
 import { Post } from "../models/post.module";
 
 class PostRepository {
-  public async getAll(query: IQuery, filter?:FilterQuery<IPostBasic>): Promise<IPostResponse<IPostBasic>> {
+  public async getAll(
+    query: IQuery,
+    filter?: FilterQuery<IPostBasic>,
+  ): Promise<IPostResponse<IPostBasic>> {
     const { page = 1, limit = 20 } = query;
     const skip: number = (+page - 1) * +limit;
-    const filterObj:FilterQuery<IPostBasic> = {isDeleted: false};
+    const filterObj: FilterQuery<IPostBasic> = { isDeleted: false };
     if (filter) {
-      filterObj.user_id = filter.user_id;
+      Object.assign(filterObj, filter);
     }
     const posts = await Post.find(filterObj).skip(skip).limit(+limit);
     const totalFilteredPosts = posts.length;
@@ -25,11 +28,14 @@ class PostRepository {
   public async getById(postId: string): Promise<IPostBasic> {
     return await Post.findOne({ _id: postId });
   }
-  public async deleteById(postId: string): Promise<void> {
-    await Post.findOneAndUpdate({ _id: postId },{isDeleted: true});
+  public async deleteById(
+    postId: string,
+    updateQuery?: UpdateQuery<IPostBasic>,
+  ): Promise<void> {
+    await Post.findOneAndUpdate({ _id: postId }, updateQuery);
   }
   public async findOneByParams(
-      params: FilterQuery<IPostBasic>,
+    params: FilterQuery<IPostBasic>,
   ): Promise<IPostBasic> {
     return await Post.findOne(params);
   }
@@ -41,8 +47,9 @@ class PostRepository {
   public async create(post: Partial<IPostBasic>): Promise<IPostBasic> {
     return await Post.create(post);
   }
-  public async deleteManyByParams(filter: FilterQuery<IPostBasic>): Promise<void> {
-    console.log(filter)
+  public async deleteManyByParams(
+    filter: FilterQuery<IPostBasic>,
+  ): Promise<void> {
     await Post.deleteMany(filter);
   }
   public async countDocumentsByParams(
