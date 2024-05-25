@@ -7,6 +7,7 @@ import { authRouter } from "./routers/auth.router";
 import { carRouter } from "./routers/car.router";
 import { postRouter } from "./routers/post.router";
 import { userRouter } from "./routers/user.router";
+import {runCronJobs} from "./crons";
 
 const app = express();
 
@@ -31,5 +32,6 @@ process.on("uncaughtException", (error) => {
 
 app.listen(config.PORT, config.HOST, async () => {
   await mongoose.connect(config.MONGO_URL, {});
+  runCronJobs();
   console.log(`Server is running at http://${config.HOST}:${config.PORT}/`);
 });
