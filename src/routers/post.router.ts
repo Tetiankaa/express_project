@@ -4,6 +4,8 @@ import { postController } from "../controllers/post.controller";
 import { ETokenType } from "../enums/token-type.enum";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { commonMiddleware } from "../middlewares/common.middleware";
+import { postMiddleware } from "../middlewares/postMiddleware";
+import { CarValidator } from "../validators/car.validator";
 
 const router = Router();
 
@@ -35,6 +37,20 @@ router.delete(
   commonMiddleware.isIdValid,
   postController.deletePostById,
 );
-// put /:id for active post (check if is not deleted and if profanity is not more than 3)
-// make different endpoint for restoring post /:id/restore (check if deleted and if profanity is not more than 3)
+router.put(
+  "/my/:id",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  commonMiddleware.isIdValid,
+  postMiddleware.isPostNotDeletedAndActive,
+  commonMiddleware.isBodyValid(CarValidator.update),
+  postController.updatePost,
+);
+router.put(
+  "/my/restore/:id",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  commonMiddleware.isIdValid,
+  postMiddleware.isPostDeletedAndNotActive,
+  postController.restorePost,
+);
+
 export const postRouter = router;

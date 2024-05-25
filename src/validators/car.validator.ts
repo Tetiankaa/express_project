@@ -49,26 +49,38 @@ export class CarValidator {
     });
 
   public static create = Joi.object({
-    brand: this.carFieldValidation.label("Brand").required(),
-    model: this.carFieldValidation.label("Model").required(),
-    region: this.baseStringValidation.label("Region").required(),
-    city: this.baseStringValidation.label("City").required(),
-    color: this.baseStringValidation.label("Color").required(),
-    description: this.description.label("Description").required(),
-    price: this.numericFieldValidation.label("Price").required(),
-    mileage: this.numericFieldValidation.label("Mileage").required(),
-    year: this.year.label("Year").required(),
-    currency: this.currency.label("Currency").required(),
+    brand: this.carFieldValidation.required(),
+    model: this.carFieldValidation.required(),
+    region: this.baseStringValidation.required(),
+    city: this.baseStringValidation.required(),
+    color: this.baseStringValidation.required(),
+    description: this.description.required(),
+    price: this.numericFieldValidation.required(),
+    mileage: this.numericFieldValidation.required(),
+    year: this.year.required(),
+    currency: this.currency.required(),
   });
   public static reportMissingBrandModel = Joi.object({
-    brand: this.carFieldValidation.label("Brand").required(),
-    model: this.carFieldValidation.label("Model").required(),
-    email: this.email.label("Email").required(),
-    fullName: this.baseStringValidation.label("Full name"),
-    notes: this.description.label("Notes"),
+    brand: this.carFieldValidation.required(),
+    model: this.carFieldValidation.required(),
+    email: this.email.required(),
+    fullName: this.baseStringValidation,
+    notes: this.description,
   });
   public static createMissingBrandModel = Joi.object({
-    brand: this.carFieldValidation.label("Brand").required(),
-    model: this.carFieldValidation.label("Model").required(),
+    brand: this.carFieldValidation.required(),
+    model: this.carFieldValidation.required(),
+  });
+  public static update = Joi.object({
+    brand: this.carFieldValidation,
+    model: this.carFieldValidation,
+    region: this.baseStringValidation,
+    city: this.baseStringValidation,
+    color: this.baseStringValidation,
+    description: this.description,
+    price: this.numericFieldValidation,
+    mileage: this.numericFieldValidation,
+    year: this.year,
+    currency: this.currency,
   });
 }

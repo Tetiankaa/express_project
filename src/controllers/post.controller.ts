@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 
 import { statusCode } from "../constants/status-codes.constant";
+import { ICar } from "../interfaces/car.interface";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
+import { IPostBasic } from "../interfaces/post.interface";
 import { IQuery } from "../interfaces/query.interface";
 import { PostMapper } from "../mappers/post.mapper";
 import { postService } from "../services/post.service";
@@ -78,6 +80,27 @@ class PostController {
       const posts = await postService.getMyArchivePosts(_userId, query);
       const response = PostMapper.toPrivateResponseList(posts);
       res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async updatePost(req: Request, res: Response, next: NextFunction) {
+    try {
+      const postToUpdate = req.res.locals.postToUpdate as IPostBasic;
+      const carBody = req.body as Partial<ICar>;
+      const post = await postService.updatePost(postToUpdate, carBody);
+      const response = PostMapper.toPrivatePost(post);
+      res.status(statusCode.CREATED).json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async restorePost(req: Request, res: Response, next: NextFunction) {
+    try {
+      const postId = req.params.id;
+      const post = await postService.restorePost(postId);
+      const response = PostMapper.toPrivatePost(post);
+      res.status(statusCode.CREATED).json(response);
     } catch (e) {
       next(e);
     }

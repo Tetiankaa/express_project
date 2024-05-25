@@ -1,5 +1,6 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
 
+import { EPostStatus } from "../enums/post-status.enum";
 import { IPostBasic, IPostResponse } from "../interfaces/post.interface";
 import { IQuery } from "../interfaces/query.interface";
 import { Post } from "../models/post.module";
@@ -8,10 +9,18 @@ class PostRepository {
   public async getAll(
     query: IQuery,
     filter?: FilterQuery<IPostBasic>,
+    applyDefaultFilter: boolean = true,
   ): Promise<IPostResponse<IPostBasic>> {
     const { page = 1, limit = 20 } = query;
     const skip: number = (+page - 1) * +limit;
-    const filterObj: FilterQuery<IPostBasic> = { isDeleted: false };
+    const filterObj: FilterQuery<IPostBasic> = {};
+
+    if (applyDefaultFilter) {
+      Object.assign(filterObj, {
+        isDeleted: false,
+        status: EPostStatus.ACTIVE,
+      });
+    }
     if (filter) {
       Object.assign(filterObj, filter);
     }
@@ -56,6 +65,14 @@ class PostRepository {
     params: FilterQuery<IPostBasic>,
   ): Promise<number> {
     return await Post.countDocuments(params);
+  }
+  public async updateById(
+    postId: string,
+    post: Partial<IPostBasic>,
+  ): Promise<IPostBasic> {
+    return await Post.findOneAndUpdate({ _id: postId }, post, {
+      returnDocument: "after",
+    });
   }
 }
 

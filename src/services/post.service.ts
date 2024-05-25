@@ -92,11 +92,14 @@ class PostService {
     userId: string,
     query: IQuery,
   ): Promise<IPostResponse<IPostWithCarAndUser<ICar, IUser>>> {
-    const posts = await postRepository.getAll(query, {
-      user_id: userId,
-      isDeleted: true,
-      status: EPostStatus.NOT_ACTIVE,
-    });
+    const posts = await postRepository.getAll(
+      query,
+      {
+        user_id: userId,
+        status: EPostStatus.NOT_ACTIVE,
+      },
+      false,
+    );
     const myPosts = await Promise.all(
       posts.data.map(async (post) => await this.fetchCarAndUserForPost(post)),
     );
@@ -106,6 +109,24 @@ class PostService {
       total: posts.total,
       data: myPosts,
     };
+  }
+  public async updatePost(
+    post: IPostBasic,
+    car: Partial<ICar>,
+  ): Promise<IPostWithCarAndUser<ICar, IUser>> {
+    // TODO check if currency was updated and recalculate the price
+
+    await carRepository.updateById(post.car_id, { ...car });
+    return await this.fetchCarAndUserForPost(post);
+  }
+  public async restorePost(
+    postId: string,
+  ): Promise<IPostWithCarAndUser<ICar, IUser>> {
+    const post = await postRepository.updateById(postId, {
+      isDeleted: false,
+      status: EPostStatus.ACTIVE,
+    });
+    return await this.fetchCarAndUserForPost(post);
   }
 
   private async fetchCarAndUserForPost(

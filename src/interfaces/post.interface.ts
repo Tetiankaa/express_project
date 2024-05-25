@@ -9,7 +9,7 @@ export interface IPostBasic {
   status?: EPostStatus;
   profanityEdits?: number;
 }
-export interface IPostWithCarAndUser<T1,T2> extends IPostBasic{
+export interface IPostWithCarAndUser<T1, T2> extends IPostBasic {
   car: T1;
   user: T2;
 }

@@ -1,16 +1,17 @@
+import { ICar, ICarDto } from "../interfaces/car.interface";
 import {
-  IPostResponse, IPostWithCarAndUser,
+  IPostResponse,
+  IPostWithCarAndUser,
 } from "../interfaces/post.interface";
+import { IUser, IUserDTO } from "../interfaces/user.interface";
 import { CarMapper } from "./car.mapper";
-import {ICar, ICarDto} from "../interfaces/car.interface";
-import {IUser, IUserDTO} from "../interfaces/user.interface";
-import {UserMapper} from "./user.mapper";
+import { UserMapper } from "./user.mapper";
 
 export class PostMapper {
   public static toPublicResponseList(
-    data: IPostResponse<IPostWithCarAndUser<ICar,IUser>>,
+    data: IPostResponse<IPostWithCarAndUser<ICar, IUser>>,
   ): IPostResponse<IPostWithCarAndUser<ICarDto, IUserDTO>> {
-    const transformedData = data.data.map((post) => (this.toPublicPost(post)));
+    const transformedData = data.data.map((post) => this.toPublicPost(post));
     return {
       total: data.total,
       limit: data.limit,
@@ -19,9 +20,9 @@ export class PostMapper {
     };
   }
   public static toPrivateResponseList(
-      data: IPostResponse<IPostWithCarAndUser<ICar,IUser>>,
+    data: IPostResponse<IPostWithCarAndUser<ICar, IUser>>,
   ): IPostResponse<IPostWithCarAndUser<ICarDto, IUserDTO>> {
-    const transformedData = data.data.map((post) => (this.toPrivatePost(post)));
+    const transformedData = data.data.map((post) => this.toPrivatePost(post));
     return {
       total: data.total,
       limit: data.limit,
@@ -29,7 +30,9 @@ export class PostMapper {
       data: transformedData,
     };
   }
-  public static toPrivatePost(post: IPostWithCarAndUser<ICar,IUser>): IPostWithCarAndUser<ICarDto,IUserDTO> {
+  public static toPrivatePost(
+    post: IPostWithCarAndUser<ICar, IUser>,
+  ): IPostWithCarAndUser<ICarDto, IUserDTO> {
     return {
       _id: post._id,
       user_id: post.user_id,
@@ -38,16 +41,18 @@ export class PostMapper {
       status: post.status,
       isDeleted: post.isDeleted,
       car: CarMapper.toDto(post.car),
-      user: UserMapper.toPrivateDto(post.user)
-    }
+      user: UserMapper.toPrivateDto(post.user),
+    };
   }
-  public static toPublicPost(post: IPostWithCarAndUser<ICar,IUser>): IPostWithCarAndUser<ICarDto,IUserDTO> {
+  public static toPublicPost(
+    post: IPostWithCarAndUser<ICar, IUser>,
+  ): IPostWithCarAndUser<ICarDto, IUserDTO> {
     return {
       _id: post._id,
       user_id: post.user_id,
       createdAt: post.createdAt,
       car: CarMapper.toDto(post.car),
-      user: UserMapper.toPublicDto(post.user)
-    }
+      user: UserMapper.toPublicDto(post.user),
+    };
   }
 }
