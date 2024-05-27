@@ -8,6 +8,8 @@ import { IMissingBrandModel } from "../interfaces/missing-brand-model.interface"
 import { ITokenDB } from "../interfaces/token.interface";
 import { CarMapper } from "../mappers/car.mapper";
 import { carService } from "../services/car.service";
+import {CarSuggestionMapper} from "../mappers/car-suggestion.mapper";
+import {IQuery} from "../interfaces/query.interface";
 
 class CarController {
   public async saveCar(req: Request, res: Response, next: NextFunction) {
@@ -66,6 +68,21 @@ class CarController {
       const response = await carService.createBrandOrModel(body);
       res.status(statusCode.CREATED).json(response);
     } catch (e) {
+      next(e);
+    }
+  }
+  public async getCarSuggestions(
+      req: Request,
+      res: Response,
+      next: NextFunction,
+  ) {
+    try {
+      const query = req.query as IQuery;
+    const carSuggestions = await carService.getCarSuggestions(query);
+    const response = CarSuggestionMapper.toResponseListDto(carSuggestions);
+    res.json(response);
+      next();
+    }catch (e) {
       next(e);
     }
   }

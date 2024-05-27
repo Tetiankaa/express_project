@@ -1,16 +1,17 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
 
 import { EPostStatus } from "../enums/post-status.enum";
-import { IPostBasic, IPostResponse } from "../interfaces/post.interface";
+import { IPostBasic } from "../interfaces/post.interface";
 import { IQuery } from "../interfaces/query.interface";
 import { Post } from "../models/post.module";
+import {IListResponse} from "../interfaces/list-response.interface";
 
 class PostRepository {
   public async getAll(
     query: IQuery,
     filter?: FilterQuery<IPostBasic>,
     applyDefaultFilter: boolean = true,
-  ): Promise<IPostResponse<IPostBasic>> {
+  ): Promise<IListResponse<IPostBasic>> {
     const { page = 1, limit = 20 } = query;
     const skip: number = (+page - 1) * +limit;
     const filterObj: FilterQuery<IPostBasic> = {};

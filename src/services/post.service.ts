@@ -5,7 +5,6 @@ import { ApiError } from "../errors/api-error";
 import { ICar } from "../interfaces/car.interface";
 import {
   IPostBasic,
-  IPostResponse,
   IPostWithCarAndUser,
 } from "../interfaces/post.interface";
 import { IQuery } from "../interfaces/query.interface";
@@ -13,11 +12,12 @@ import { IUser } from "../interfaces/user.interface";
 import { carRepository } from "../repositories/car.repository";
 import { postRepository } from "../repositories/post.repository";
 import { userRepository } from "../repositories/user.repository";
+import {IListResponse} from "../interfaces/list-response.interface";
 
 class PostService {
   public async getAll(
     query: IQuery,
-  ): Promise<IPostResponse<IPostWithCarAndUser<ICar, IUser>>> {
+  ): Promise<IListResponse<IPostWithCarAndUser<ICar, IUser>>> {
     const posts = await postRepository.getAll(query);
     const publicPosts = await Promise.all(
       posts.data.map(async (post) => await this.fetchCarAndUserForPost(post)),
@@ -33,7 +33,7 @@ class PostService {
   public async getMyPosts(
     userId: string,
     query: IQuery,
-  ): Promise<IPostResponse<IPostWithCarAndUser<ICar, IUser>>> {
+  ): Promise<IListResponse<IPostWithCarAndUser<ICar, IUser>>> {
     const posts = await postRepository.getAll(query, { user_id: userId });
     const myPosts = await Promise.all(
       posts.data.map(async (post) => await this.fetchCarAndUserForPost(post)),
@@ -68,7 +68,7 @@ class PostService {
       throw new ApiError(statusCode.NOT_FOUND, errorMessages.POST_NOT_FOUND);
     }
     if (post.user_id.toString() !== userId) {
-      throw new ApiError(statusCode.FORBIDDEN, errorMessages.ACCESS_DENIED);
+      throw new ApiError(statusCode.FORBIDDEN, errorMessages.ACCESS_POST_DENIED);
     }
     return await this.fetchCarAndUserForPost(post);
   }
@@ -81,7 +81,7 @@ class PostService {
       throw new ApiError(statusCode.NOT_FOUND, errorMessages.POST_NOT_FOUND);
     }
     if (post.user_id.toString() !== userId) {
-      throw new ApiError(statusCode.FORBIDDEN, errorMessages.ACCESS_DENIED);
+      throw new ApiError(statusCode.FORBIDDEN, errorMessages.ACCESS_POST_DENIED);
     }
     await postRepository.deleteById(postId, {
       isDeleted: true,
@@ -91,7 +91,7 @@ class PostService {
   public async getMyArchivePosts(
     userId: string,
     query: IQuery,
-  ): Promise<IPostResponse<IPostWithCarAndUser<ICar, IUser>>> {
+  ): Promise<IListResponse<IPostWithCarAndUser<ICar, IUser>>> {
     const posts = await postRepository.getAll(
       query,
       {

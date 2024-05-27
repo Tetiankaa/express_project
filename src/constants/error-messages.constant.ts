@@ -9,8 +9,8 @@ export const errorMessages = {
   ONE_POST_FOR_BASIC_ACCOUNT:
     "Basic account holders can only create one car for sale.",
   NOT_AUTHENTICATED_EMAIL: "Email is not belong to authenticated user",
-  NOT_ALLOWED_CREATE_BRAND: "Only admin or manager can add new brand",
+  ACCESS_DENIED_ROLES: "Only admin or manager can perform this action",
   BRAND_MODEL_ALREADY_EXIST: "Brand and model already exist.",
   POST_NOT_FOUND: "Post was not found",
-  ACCESS_DENIED: "You do not have permission to access this post",
+  ACCESS_POST_DENIED: "You do not have permission to access this post",
 };

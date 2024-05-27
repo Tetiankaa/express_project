@@ -21,6 +21,8 @@ import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
 import { authService } from "./auth.service";
 import { emailService } from "./email.service";
+import {IQuery} from "../interfaces/query.interface";
+import {IListResponse} from "../interfaces/list-response.interface";
 
 class CarService {
   public async saveCar(
@@ -122,6 +124,9 @@ class CarService {
         models: [{ name: model }],
       });
     }
+  }
+  public async getCarSuggestions(query: IQuery):Promise<IListResponse<IMissingBrandModel>> {
+    return await carSuggestionsRepository.getAll(query);
   }
 }
 

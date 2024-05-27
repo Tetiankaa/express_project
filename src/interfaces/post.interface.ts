@@ -14,11 +14,3 @@ export interface IPostWithCarAndUser<T1, T2> extends IPostBasic {
   user: T2;
 }
 
-export interface IPagination {
-  total: number;
-  page: number;
-  limit: number;
-}
-export interface IPostResponse<T> extends IPagination {
-  data: T[];
-}

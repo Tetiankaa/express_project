@@ -18,22 +18,6 @@ export class CarMapper {
       year: car.year,
     };
   }
-  public static toCar(dto: ICarDto): ICar {
-    return {
-      _id: dto._id,
-      brand: dto.brand,
-      city: dto.city,
-      color: dto.color,
-      currency: dto.currency,
-      mileage: dto.mileage,
-      model: dto.model,
-      photo: dto.photo,
-      description: dto.description,
-      price: dto.price,
-      region: dto.region,
-      year: dto.year,
-    };
-  }
   public static toListDto(cars: ICar[]): ICarDto[] {
     return cars.map(CarMapper.toDto);
   }

@@ -1,16 +1,16 @@
 import { ICar, ICarDto } from "../interfaces/car.interface";
 import {
-  IPostResponse,
   IPostWithCarAndUser,
 } from "../interfaces/post.interface";
 import { IUser, IUserDTO } from "../interfaces/user.interface";
 import { CarMapper } from "./car.mapper";
 import { UserMapper } from "./user.mapper";
+import {IListResponse} from "../interfaces/list-response.interface";
 
 export class PostMapper {
   public static toPublicResponseList(
-    data: IPostResponse<IPostWithCarAndUser<ICar, IUser>>,
-  ): IPostResponse<IPostWithCarAndUser<ICarDto, IUserDTO>> {
+    data: IListResponse<IPostWithCarAndUser<ICar, IUser>>,
+  ): IListResponse<IPostWithCarAndUser<ICarDto, IUserDTO>> {
     const transformedData = data.data.map((post) => this.toPublicPost(post));
     return {
       total: data.total,
@@ -20,8 +20,8 @@ export class PostMapper {
     };
   }
   public static toPrivateResponseList(
-    data: IPostResponse<IPostWithCarAndUser<ICar, IUser>>,
-  ): IPostResponse<IPostWithCarAndUser<ICarDto, IUserDTO>> {
+    data: IListResponse<IPostWithCarAndUser<ICar, IUser>>,
+  ): IListResponse<IPostWithCarAndUser<ICarDto, IUserDTO>> {
     const transformedData = data.data.map((post) => this.toPrivatePost(post));
     return {
       total: data.total,

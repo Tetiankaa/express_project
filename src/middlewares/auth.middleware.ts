@@ -78,7 +78,7 @@ class AuthMiddleware {
       ) {
         throw new ApiError(
           statusCode.UNAUTHORIZED,
-          errorMessages.NOT_ALLOWED_CREATE_BRAND,
+          errorMessages.ACCESS_DENIED_ROLES,
         );
       }
       next();
