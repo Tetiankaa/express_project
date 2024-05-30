@@ -14,25 +14,26 @@ class EmailService {
   public async sendByEmailType<T extends EEmailType>(
     emailType: T,
     dynamicTemplateData: EmailPayloadType[T],
+    sendToAdmin: boolean,
+    recipient?: string,
   ): Promise<void> {
     try {
       const templateId = emailTemplateConstants[emailType].templateId;
-
       await this.send({
         from: config.SENDGRID_FROM_EMAIL,
-        to: config.ADMIN_EMAIL_FOR_CAR_SUGGESTION,
+        to: sendToAdmin ? config.ADMIN_EMAIL_FOR_CAR_SUGGESTION : recipient,
         templateId,
         dynamicTemplateData,
       });
     } catch (e) {
-      console.error(e);
+      console.error(e.response ? e.response.body.errors : e.message);
     }
   }
   private async send(email: MailDataRequired): Promise<void> {
     try {
       await SendGrid.send(email);
     } catch (e) {
-      console.error(e);
+      console.error(e.response ? e.response.body.errors : e.message);
     }
   }
 }

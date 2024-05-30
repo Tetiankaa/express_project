@@ -7,4 +7,12 @@ export type EmailPayloadType = {
     EmailCombinedPayloadType,
     "model" | "brand" | "email" | "notes" | "fullName"
   >;
+  [EEmailType.MISSING_BRAND_MODEL_ADDED]: PickRequiredType<
+    EmailCombinedPayloadType,
+    "model" | "brand" | "fullName"
+  >;
+  [EEmailType.POST_PROFANITY_DETECTED]: PickRequiredType<
+    EmailCombinedPayloadType,
+    "firstName" | "numberOfAttempts"
+  >;
 };

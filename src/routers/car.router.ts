@@ -25,14 +25,29 @@ router.post(
   carController.createBrandOrModel,
 );
 router.post(
-  "/suggestions",
+  "/report-missing-brand-model",
   authMiddleware.verifyToken(ETokenType.ACCESS),
   commonMiddleware.isBodyValid(CarValidator.reportMissingBrandModel),
   carController.reportMissingBrandModel,
 );
-router.get("/suggestions",
-    authMiddleware.verifyToken(ETokenType.ACCESS),
-    authMiddleware.isAdminOrManager,
-    carController.getCarSuggestions
-    )
+router.get(
+  "/suggestions",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  authMiddleware.isAdminOrManager,
+  carController.getCarSuggestions,
+);
+router.get(
+  "/suggestions/:id",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  authMiddleware.isAdminOrManager,
+  commonMiddleware.isIdValid,
+  carController.getCarSuggestion,
+);
+router.patch(
+  "/suggestions/:id",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  authMiddleware.isAdminOrManager,
+  commonMiddleware.isIdValid,
+  carController.toggleCarSuggestionResolution,
+);
 export const carRouter = router;

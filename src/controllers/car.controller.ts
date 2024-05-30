@@ -2,14 +2,16 @@ import { NextFunction, Request, Response } from "express";
 
 import { statusCode } from "../constants/status-codes.constant";
 import { IBrandModelInput } from "../interfaces/brand-model-input.interface";
-import { ICar } from "../interfaces/car.interface";
+import { ICar, ICarDto } from "../interfaces/car.interface";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IMissingBrandModel } from "../interfaces/missing-brand-model.interface";
-import { ITokenDB } from "../interfaces/token.interface";
-import { CarMapper } from "../mappers/car.mapper";
+import { IPostWithCarAndUser } from "../interfaces/post.interface";
+import { IQuery } from "../interfaces/query.interface";
+import { ITokenDB, ITokenResponse } from "../interfaces/token.interface";
+import { IUserDTO } from "../interfaces/user.interface";
+import { CarSuggestionMapper } from "../mappers/car-suggestion.mapper";
+import { PostMapper } from "../mappers/post.mapper";
 import { carService } from "../services/car.service";
-import {CarSuggestionMapper} from "../mappers/car-suggestion.mapper";
-import {IQuery} from "../interfaces/query.interface";
 
 class CarController {
   public async saveCar(req: Request, res: Response, next: NextFunction) {
@@ -17,11 +19,14 @@ class CarController {
       const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
       const { _id } = req.res.locals.tokenPair as ITokenDB;
       const carToSave = req.body as Partial<ICar>;
-      const carResponse = await carService.saveCar(carToSave, jwtPayload, _id);
-      const response = CarMapper.toResponseDto(
-        carResponse.data,
-        carResponse.tokens,
-      );
+      const savedPost = await carService.saveCar(carToSave, jwtPayload, _id);
+      const response: {
+        data: IPostWithCarAndUser<ICarDto, IUserDTO>;
+        tokens?: ITokenResponse;
+      } = {
+        data: PostMapper.toPrivatePost(savedPost.data),
+        tokens: savedPost.tokens,
+      };
       res.status(statusCode.CREATED).json(response);
       next();
     } catch (e) {
@@ -72,17 +77,47 @@ class CarController {
     }
   }
   public async getCarSuggestions(
-      req: Request,
-      res: Response,
-      next: NextFunction,
+    req: Request,
+    res: Response,
+    next: NextFunction,
   ) {
     try {
       const query = req.query as IQuery;
-    const carSuggestions = await carService.getCarSuggestions(query);
-    const response = CarSuggestionMapper.toResponseListDto(carSuggestions);
-    res.json(response);
+      const carSuggestions = await carService.getCarSuggestions(query);
+      const response = CarSuggestionMapper.toResponseListDto(carSuggestions);
+      res.json(response);
       next();
-    }catch (e) {
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async getCarSuggestion(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const id = req.params.id;
+      const carSuggestion = await carService.getCarSuggestion(id);
+      const response = CarSuggestionMapper.toDto(carSuggestion);
+      res.json(response);
+      next();
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async toggleCarSuggestionResolution(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const id = req.params.id;
+      const carSuggestion = await carService.toggleCarSuggestionResolution(id);
+      const response = CarSuggestionMapper.toDto(carSuggestion);
+      res.json(response);
+      next();
+    } catch (e) {
       next(e);
     }
   }

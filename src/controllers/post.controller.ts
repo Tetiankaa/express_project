@@ -88,7 +88,8 @@ class PostController {
     try {
       const postToUpdate = req.res.locals.postToUpdate as IPostBasic;
       const carBody = req.body as Partial<ICar>;
-      const post = await postService.updatePost(postToUpdate, carBody);
+      const {_userId} = req.res.locals.jwtPayload as IJwtPayload;
+      const post = await postService.updatePost(postToUpdate, carBody, _userId);
       const response = PostMapper.toPrivatePost(post);
       res.status(statusCode.CREATED).json(response);
     } catch (e) {

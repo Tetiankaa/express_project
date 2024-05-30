@@ -16,6 +16,7 @@ class AuthService {
     const hashedPassword = await passwordService.hash(user.password);
     const newUser = await userRepository.create({
       ...user,
+      email: user.email.toLowerCase(),
       password: hashedPassword,
     });
 
@@ -30,7 +31,7 @@ class AuthService {
     credentials: IAuthCredentials,
   ): Promise<{ user: IUser; tokens: ITokenResponse }> {
     const user = await userRepository.findByParams({
-      email: credentials.email,
+      email: credentials.email.toLowerCase(),
     });
     if (!user) {
       this.throwWrongCredentialsError();

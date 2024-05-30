@@ -4,4 +4,6 @@ export type EmailCombinedPayloadType = {
   email?: string;
   notes?: string;
   fullName?: string;
+  numberOfAttempts?: number;
+  firstName?: string;
 };

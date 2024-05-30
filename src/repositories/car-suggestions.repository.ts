@@ -1,9 +1,9 @@
+import { FilterQuery } from "mongoose";
 
 import { IListResponse } from "../interfaces/list-response.interface";
 import { IMissingBrandModel } from "../interfaces/missing-brand-model.interface";
 import { IQuery } from "../interfaces/query.interface";
 import { CarSuggestions } from "../models/car-suggestions.model";
-import {FilterQuery} from "mongoose";
 
 class CarSuggestionsRepository {
   public async create(data: IMissingBrandModel): Promise<IMissingBrandModel> {
@@ -28,8 +28,24 @@ class CarSuggestionsRepository {
       data: suggestions,
       limit: +limit,
       page: +page,
-      total
+      total,
     };
+  }
+  public async getById(id: string): Promise<IMissingBrandModel> {
+    return await CarSuggestions.findOne({ _id: id });
+  }
+  public async updateById(
+    id: string,
+    data: Partial<IMissingBrandModel>,
+  ): Promise<IMissingBrandModel> {
+    return await CarSuggestions.findOneAndUpdate({ _id: id }, data, {
+      returnDocument: "after",
+    });
+  }
+  public async deleteByParams(
+    params: FilterQuery<IMissingBrandModel>,
+  ): Promise<void> {
+     await CarSuggestions.deleteMany(params);
   }
 }
 

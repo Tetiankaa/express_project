@@ -16,7 +16,9 @@ class AuthMiddleware {
   public async isEmailExist(req: Request, res: Response, next: NextFunction) {
     try {
       const { email } = req.body as Partial<IUser>;
-      const user = await userRepository.findByParams({ email });
+      const user = await userRepository.findByParams({
+        email: email.toLowerCase(),
+      });
 
       if (user) {
         throw new ApiError(

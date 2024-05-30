@@ -1,18 +1,19 @@
+import { config } from "../configs/config";
 import { errorMessages } from "../constants/error-messages.constant";
 import { statusCode } from "../constants/status-codes.constant";
+import { EEmailType } from "../enums/email-type.enum";
 import { EPostStatus } from "../enums/post-status.enum";
 import { ApiError } from "../errors/api-error";
 import { ICar } from "../interfaces/car.interface";
-import {
-  IPostBasic,
-  IPostWithCarAndUser,
-} from "../interfaces/post.interface";
+import { IListResponse } from "../interfaces/list-response.interface";
+import { IPostBasic, IPostWithCarAndUser } from "../interfaces/post.interface";
 import { IQuery } from "../interfaces/query.interface";
 import { IUser } from "../interfaces/user.interface";
 import { carRepository } from "../repositories/car.repository";
 import { postRepository } from "../repositories/post.repository";
 import { userRepository } from "../repositories/user.repository";
-import {IListResponse} from "../interfaces/list-response.interface";
+import { emailService } from "./email.service";
+import { profanityService } from "./profanity.service";
 
 class PostService {
   public async getAll(
@@ -68,7 +69,10 @@ class PostService {
       throw new ApiError(statusCode.NOT_FOUND, errorMessages.POST_NOT_FOUND);
     }
     if (post.user_id.toString() !== userId) {
-      throw new ApiError(statusCode.FORBIDDEN, errorMessages.ACCESS_POST_DENIED);
+      throw new ApiError(
+        statusCode.FORBIDDEN,
+        errorMessages.ACCESS_POST_DENIED,
+      );
     }
     return await this.fetchCarAndUserForPost(post);
   }
@@ -81,7 +85,10 @@ class PostService {
       throw new ApiError(statusCode.NOT_FOUND, errorMessages.POST_NOT_FOUND);
     }
     if (post.user_id.toString() !== userId) {
-      throw new ApiError(statusCode.FORBIDDEN, errorMessages.ACCESS_POST_DENIED);
+      throw new ApiError(
+        statusCode.FORBIDDEN,
+        errorMessages.ACCESS_POST_DENIED,
+      );
     }
     await postRepository.deleteById(postId, {
       isDeleted: true,
@@ -113,9 +120,22 @@ class PostService {
   public async updatePost(
     post: IPostBasic,
     car: Partial<ICar>,
+    user_id: string,
   ): Promise<IPostWithCarAndUser<ICar, IUser>> {
     // TODO check if currency was updated and recalculate the price
-
+    const user = await userRepository.getById(user_id);
+    const isProfanityPresent = profanityService.checkForProfanity(car);
+    if (isProfanityPresent) {
+      await emailService.sendByEmailType(
+        EEmailType.POST_PROFANITY_DETECTED,
+        {
+          firstName: user.firstName,
+          numberOfAttempts: config.MAX_PROFANITY_EDITS,
+        },
+        false,
+        user.email,
+      );
+    }
     await carRepository.updateById(post.car_id, { ...car });
     return await this.fetchCarAndUserForPost(post);
   }

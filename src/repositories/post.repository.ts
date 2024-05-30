@@ -1,10 +1,10 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
 
 import { EPostStatus } from "../enums/post-status.enum";
+import { IListResponse } from "../interfaces/list-response.interface";
 import { IPostBasic } from "../interfaces/post.interface";
 import { IQuery } from "../interfaces/query.interface";
 import { Post } from "../models/post.module";
-import {IListResponse} from "../interfaces/list-response.interface";
 
 class PostRepository {
   public async getAll(

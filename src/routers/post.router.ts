@@ -52,5 +52,6 @@ router.put(
   postMiddleware.isPostDeletedAndNotActive,
   postController.restorePost,
 );
+router.patch("/resubmit")
 
 export const postRouter = router;

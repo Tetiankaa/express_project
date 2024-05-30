@@ -13,4 +13,5 @@ export const errorMessages = {
   BRAND_MODEL_ALREADY_EXIST: "Brand and model already exist.",
   POST_NOT_FOUND: "Post was not found",
   ACCESS_POST_DENIED: "You do not have permission to access this post",
+  CAR_SUGGESTION_NOT_FOUND: "Car suggestion was not found",
 };

@@ -6,7 +6,7 @@ import { postRepository } from "../repositories/post.repository";
 const handler = async () => {
   try {
     await postRepository.deleteManyByParams({
-      createdAt: { $lte: TimeHelper.subtractByParams(30, "days") },
+      updatedAt: { $lte: TimeHelper.subtractByParams(30, "days") },
     });
   } catch (error) {
     console.error("Error remove unactive posts: ", error);
