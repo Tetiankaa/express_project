@@ -14,14 +14,13 @@ class EmailService {
   public async sendByEmailType<T extends EEmailType>(
     emailType: T,
     dynamicTemplateData: EmailPayloadType[T],
-    sendToAdmin: boolean,
-    recipient?: string,
+    recipient: string,
   ): Promise<void> {
     try {
       const templateId = emailTemplateConstants[emailType].templateId;
       await this.send({
         from: config.SENDGRID_FROM_EMAIL,
-        to: sendToAdmin ? config.ADMIN_EMAIL_FOR_CAR_SUGGESTION : recipient,
+        to: recipient,
         templateId,
         dynamicTemplateData,
       });

@@ -12,14 +12,24 @@ class PostRepository {
     filter?: FilterQuery<IPostBasic>,
     applyDefaultFilter: boolean = true,
   ): Promise<IListResponse<IPostBasic>> {
-    const { page = 1, limit = 20 } = query;
+    const { page = 1, limit = 20, postId } = query;
     const skip: number = (+page - 1) * +limit;
     const filterObj: FilterQuery<IPostBasic> = {};
-
+    console.log(postId)
+    if (postId) {
+      Object.assign(filterObj, {
+        _id: postId,
+      });
+    }
     if (applyDefaultFilter) {
       Object.assign(filterObj, {
         isDeleted: false,
         status: EPostStatus.ACTIVE,
+      });
+    }
+    if (query.isDeleted) {
+      Object.assign(filterObj, {
+        isDeleted: query.isDeleted,
       });
     }
     if (filter) {
@@ -38,7 +48,7 @@ class PostRepository {
   public async getById(postId: string): Promise<IPostBasic> {
     return await Post.findOne({ _id: postId });
   }
-  public async deleteById(
+  public async findOneAndUpdate(
     postId: string,
     updateQuery?: UpdateQuery<IPostBasic>,
   ): Promise<void> {
@@ -61,6 +71,9 @@ class PostRepository {
     filter: FilterQuery<IPostBasic>,
   ): Promise<void> {
     await Post.deleteMany(filter);
+  }
+  public async deleteById(postId: string): Promise<void> {
+    await Post.findByIdAndDelete(postId);
   }
   public async countDocumentsByParams(
     params: FilterQuery<IPostBasic>,

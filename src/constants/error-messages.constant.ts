@@ -14,4 +14,6 @@ export const errorMessages = {
   POST_NOT_FOUND: "Post was not found",
   ACCESS_POST_DENIED: "You do not have permission to access this post",
   CAR_SUGGESTION_NOT_FOUND: "Car suggestion was not found",
+  ACHIEVED_MAX_NUMBER_OF_PROFANITY_EDITS:
+    "Achieved maximum number of profanity edits",
 };

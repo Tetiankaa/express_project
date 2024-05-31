@@ -6,4 +6,7 @@ export type EmailCombinedPayloadType = {
   fullName?: string;
   numberOfAttempts?: number;
   firstName?: string;
+  lastName?: string;
+  postId?: string;
+  submissionDate?: string;
 };

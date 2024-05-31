@@ -1,11 +1,9 @@
 import { ICar, ICarDto } from "../interfaces/car.interface";
-import {
-  IPostWithCarAndUser,
-} from "../interfaces/post.interface";
+import { IListResponse } from "../interfaces/list-response.interface";
+import { IPostWithCarAndUser } from "../interfaces/post.interface";
 import { IUser, IUserDTO } from "../interfaces/user.interface";
 import { CarMapper } from "./car.mapper";
 import { UserMapper } from "./user.mapper";
-import {IListResponse} from "../interfaces/list-response.interface";
 
 export class PostMapper {
   public static toPublicResponseList(
@@ -37,6 +35,7 @@ export class PostMapper {
       _id: post._id,
       user_id: post.user_id,
       createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
       profanityEdits: post.profanityEdits,
       status: post.status,
       isDeleted: post.isDeleted,
@@ -51,6 +50,7 @@ export class PostMapper {
       _id: post._id,
       user_id: post.user_id,
       createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
       car: CarMapper.toDto(post.car),
       user: UserMapper.toPublicDto(post.user),
     };

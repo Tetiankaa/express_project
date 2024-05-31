@@ -4,6 +4,7 @@ import { statusCode } from "../constants/status-codes.constant";
 import { EEmailType } from "../enums/email-type.enum";
 import { EPostStatus } from "../enums/post-status.enum";
 import { ApiError } from "../errors/api-error";
+import { TimeHelper } from "../helpers/time.helper";
 import { ICar } from "../interfaces/car.interface";
 import { IListResponse } from "../interfaces/list-response.interface";
 import { IPostBasic, IPostWithCarAndUser } from "../interfaces/post.interface";
@@ -59,41 +60,20 @@ class PostService {
     return await this.fetchCarAndUserForPost(post);
   }
   public async getPrivatePostById(
-    postId: string,
-    userId: string,
+    post: IPostBasic,
   ): Promise<IPostWithCarAndUser<ICar, IUser>> {
-    const post = await postRepository.findOneByParams({
-      _id: postId,
-    });
-    if (!post) {
-      throw new ApiError(statusCode.NOT_FOUND, errorMessages.POST_NOT_FOUND);
-    }
-    if (post.user_id.toString() !== userId) {
-      throw new ApiError(
-        statusCode.FORBIDDEN,
-        errorMessages.ACCESS_POST_DENIED,
-      );
-    }
     return await this.fetchCarAndUserForPost(post);
   }
-  public async deletePostById(postId: string, userId: string): Promise<void> {
-    const post = await postRepository.findOneByParams({
-      _id: postId,
-      isDeleted: false,
-    });
-    if (!post) {
-      throw new ApiError(statusCode.NOT_FOUND, errorMessages.POST_NOT_FOUND);
+  public async deletePostById(post: IPostBasic): Promise<void> {
+    if (!post.isDeleted) {
+      await postRepository.findOneAndUpdate(post._id, {
+        isDeleted: true,
+        status: EPostStatus.NOT_ACTIVE,
+      });
     }
-    if (post.user_id.toString() !== userId) {
-      throw new ApiError(
-        statusCode.FORBIDDEN,
-        errorMessages.ACCESS_POST_DENIED,
-      );
-    }
-    await postRepository.deleteById(postId, {
-      isDeleted: true,
-      status: EPostStatus.NOT_ACTIVE,
-    });
+  }
+  public async deleteForeverPostById(postId: string): Promise<void> {
+    await postRepository.deleteById(postId);
   }
   public async getMyArchivePosts(
     userId: string,
@@ -127,12 +107,11 @@ class PostService {
     const isProfanityPresent = profanityService.checkForProfanity(car);
     if (isProfanityPresent) {
       await emailService.sendByEmailType(
-        EEmailType.POST_PROFANITY_DETECTED,
+        EEmailType.POST_PROFANITY_DETECTED_FOR_USER,
         {
           firstName: user.firstName,
           numberOfAttempts: config.MAX_PROFANITY_EDITS,
         },
-        false,
         user.email,
       );
     }
@@ -148,6 +127,81 @@ class PostService {
     });
     return await this.fetchCarAndUserForPost(post);
   }
+  public async updatePostAfterProfanity(
+    oldPost: IPostBasic,
+    carToUpdate: Partial<ICar>,
+  ): Promise<IPostWithCarAndUser<ICar, IUser>> {
+    const isProfanityPresent = profanityService.checkForProfanity(carToUpdate);
+
+    const updatedCar = await carRepository.updateById(oldPost.car_id, {
+      ...carToUpdate,
+    });
+    const user = await userRepository.getById(oldPost.user_id);
+    let updatedPost: IPostBasic;
+
+    if (isProfanityPresent) {
+      const sumOfProfanityEdits = oldPost.profanityEdits + 1;
+      updatedPost = await postRepository.updateById(oldPost._id, {
+        profanityEdits: sumOfProfanityEdits,
+      });
+      await emailService.sendByEmailType(
+        EEmailType.POST_PROFANITY_DETECTED_FOR_USER,
+        {
+          firstName: user.firstName,
+          numberOfAttempts: config.MAX_PROFANITY_EDITS - sumOfProfanityEdits,
+        },
+        user.email,
+      );
+      if (sumOfProfanityEdits >= config.MAX_PROFANITY_EDITS) {
+        await emailService.sendByEmailType(
+          EEmailType.POST_PROFANITY_DETECTED_FOR_MANAGER,
+          {
+            postId: oldPost._id,
+            numberOfAttempts: config.MAX_PROFANITY_EDITS,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            submissionDate: TimeHelper.getCurrentDate(),
+          },
+          config.MANAGER_EMAIL,
+        );
+      }
+    } else {
+      updatedPost = await postRepository.updateById(oldPost._id, {
+        profanityEdits: 0,
+        status: EPostStatus.ACTIVE,
+      });
+    }
+    return {
+      car: updatedCar,
+      user,
+      _id: updatedPost._id,
+      status: updatedPost.status,
+      profanityEdits: updatedPost.profanityEdits,
+      isDeleted: updatedPost.isDeleted,
+      createdAt: updatedPost.createdAt,
+      updatedAt: updatedPost.updatedAt,
+    };
+  }
+  public async getPostsWithProfanity(
+    query: IQuery,
+  ): Promise<IListResponse<IPostWithCarAndUser<ICar, IUser>>> {
+    const posts = await postRepository.getAll(
+      query,
+      { status: EPostStatus.NOT_ACTIVE, isDeleted: false },
+      false,
+    );
+    const postsWithInfo = await Promise.all(
+      posts.data.map(async (post) => await this.fetchCarAndUserForPost(post)),
+    );
+
+    return {
+      page: posts.page,
+      limit: posts.limit,
+      total: posts.total,
+      data: postsWithInfo,
+    };
+  }
 
   private async fetchCarAndUserForPost(
     post: IPostBasic,
@@ -158,6 +212,7 @@ class PostService {
     return {
       _id: post._id,
       createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
       status: post.status,
       profanityEdits: post.profanityEdits,
       isDeleted: post.isDeleted,

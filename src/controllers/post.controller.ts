@@ -19,6 +19,7 @@ class PostController {
       next(e);
     }
   }
+
   public async getMyPosts(req: Request, res: Response, next: NextFunction) {
     try {
       const { _userId } = req.res.locals.jwtPayload as IJwtPayload;
@@ -30,6 +31,7 @@ class PostController {
       next(e);
     }
   }
+
   public async getPublicPostById(
     req: Request,
     res: Response,
@@ -44,26 +46,39 @@ class PostController {
       next(e);
     }
   }
+
   public async getPrivatePostById(
     req: Request,
     res: Response,
     next: NextFunction,
   ) {
     try {
-      const id = req.params.id;
-      const { _userId } = req.res.locals.jwtPayload as IJwtPayload;
-      const post = await postService.getPrivatePostById(id, _userId);
-      const response = PostMapper.toPrivatePost(post);
+      const post = req.res.locals.post as IPostBasic;
+      const postInfo = await postService.getPrivatePostById(post);
+      const response = PostMapper.toPrivatePost(postInfo);
       res.json(response);
     } catch (e) {
       next(e);
     }
   }
+
   public async deletePostById(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = req.params.id;
-      const { _userId } = req.res.locals.jwtPayload as IJwtPayload;
-      await postService.deletePostById(id, _userId);
+      const post = req.res.locals.post as IPostBasic;
+      await postService.deletePostById(post);
+      res.sendStatus(statusCode.NO_CONTENT);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async deleteForeverPostById(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { _id } = req.res.locals.post as IPostBasic;
+      await postService.deleteForeverPostById(_id);
       res.sendStatus(statusCode.NO_CONTENT);
     } catch (e) {
       next(e);
@@ -84,11 +99,12 @@ class PostController {
       next(e);
     }
   }
+
   public async updatePost(req: Request, res: Response, next: NextFunction) {
     try {
       const postToUpdate = req.res.locals.postToUpdate as IPostBasic;
       const carBody = req.body as Partial<ICar>;
-      const {_userId} = req.res.locals.jwtPayload as IJwtPayload;
+      const { _userId } = req.res.locals.jwtPayload as IJwtPayload;
       const post = await postService.updatePost(postToUpdate, carBody, _userId);
       const response = PostMapper.toPrivatePost(post);
       res.status(statusCode.CREATED).json(response);
@@ -96,6 +112,7 @@ class PostController {
       next(e);
     }
   }
+
   public async restorePost(req: Request, res: Response, next: NextFunction) {
     try {
       const postId = req.params.id;
@@ -106,6 +123,35 @@ class PostController {
       next(e);
     }
   }
-}
 
+  public async updatePostAfterProfanity(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const oldPost = req.res.locals.oldPost as IPostBasic;
+      const body = req.body as Partial<ICar>;
+      const post = await postService.updatePostAfterProfanity(oldPost, body);
+      const newPost = PostMapper.toPrivatePost(post);
+      res.status(statusCode.CREATED).json(newPost);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async getPostsWithProfanity(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const query = req.query as IQuery;
+      const posts = await postService.getPostsWithProfanity(query);
+      const response = PostMapper.toPrivateResponseList(posts);
+      res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+}
 export const postController = new PostController();

@@ -68,12 +68,11 @@ class CarService {
     }
     if (isProfanityPresent) {
       await emailService.sendByEmailType(
-        EEmailType.POST_PROFANITY_DETECTED,
+        EEmailType.POST_PROFANITY_DETECTED_FOR_USER,
         {
           firstName: user.firstName,
           numberOfAttempts: config.MAX_PROFANITY_EDITS,
         },
-        false,
         user.email,
       );
     }
@@ -87,6 +86,7 @@ class CarService {
         isDeleted: post.isDeleted,
         _id: post._id,
         createdAt: post.createdAt,
+        updatedAt: post.updatedAt,
       },
       tokens,
     };
@@ -122,7 +122,7 @@ class CarService {
       {
         ...report,
       },
-      true,
+      config.ADMIN_EMAIL,
     );
     return suggestion;
   }
@@ -178,7 +178,6 @@ class CarService {
         {
           ...updatedSuggestion,
         },
-        false,
         updatedSuggestion.email,
       );
     }

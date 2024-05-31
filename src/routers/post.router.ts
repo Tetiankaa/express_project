@@ -24,7 +24,14 @@ router.get(
   "/my/:id",
   authMiddleware.verifyToken(ETokenType.ACCESS),
   commonMiddleware.isIdValid,
+  postMiddleware.isPostExistsAnsBelongsToUser,
   postController.getPrivatePostById,
+);
+router.get(
+  "/profanity-detected",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  authMiddleware.isAdminOrManager,
+  postController.getPostsWithProfanity,
 );
 router.get(
   "/:id",
@@ -35,7 +42,15 @@ router.delete(
   "/my/:id",
   authMiddleware.verifyToken(ETokenType.ACCESS),
   commonMiddleware.isIdValid,
+  postMiddleware.isPostExistsAnsBelongsToUser,
   postController.deletePostById,
+);
+router.delete(
+  "/my/forever/:id",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  commonMiddleware.isIdValid,
+  postMiddleware.isPostExistsAnsBelongsToUser,
+  postController.deleteForeverPostById,
 );
 router.put(
   "/my/:id",
@@ -52,6 +67,13 @@ router.put(
   postMiddleware.isPostDeletedAndNotActive,
   postController.restorePost,
 );
-router.patch("/resubmit")
-
+router.patch(
+  "/my/resubmit-after-profanity/:id",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  commonMiddleware.isIdValid,
+  postMiddleware.isResubmissionAllowed,
+  commonMiddleware.isBodyValid(CarValidator.update),
+  postController.updatePostAfterProfanity,
+);
+// TODO endpoint for admin getAllBlockedAfterProfanityPosts
 export const postRouter = router;

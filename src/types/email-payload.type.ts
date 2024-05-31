@@ -11,8 +11,17 @@ export type EmailPayloadType = {
     EmailCombinedPayloadType,
     "model" | "brand" | "fullName"
   >;
-  [EEmailType.POST_PROFANITY_DETECTED]: PickRequiredType<
+  [EEmailType.POST_PROFANITY_DETECTED_FOR_USER]: PickRequiredType<
     EmailCombinedPayloadType,
     "firstName" | "numberOfAttempts"
+  >;
+  [EEmailType.POST_PROFANITY_DETECTED_FOR_MANAGER]: PickRequiredType<
+    EmailCombinedPayloadType,
+    | "numberOfAttempts"
+    | "firstName"
+    | "lastName"
+    | "email"
+    | "postId"
+    | "submissionDate"
   >;
 };
