@@ -1,9 +1,16 @@
+import { config } from "../configs/config";
 import { errorMessages } from "../constants/error-messages.constant";
 import { statusCode } from "../constants/status-codes.constant";
+import { EActionTokenType } from "../enums/action-token-type.enum";
+import { ERole } from "../enums/role.enum";
 import { ApiError } from "../errors/api-error";
-import { IAuthCredentials } from "../interfaces/auth.interface";
+import {
+  IAuthCredentials,
+  IChangePassword,
+} from "../interfaces/auth.interface";
 import { ITokenResponse } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
+import { actionTokenRepository } from "../repositories/action-token.repository";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
 import { passwordService } from "./password.service";
@@ -58,6 +65,68 @@ class AuthService {
     await tokenRepository.deleteById(oldTokenId);
 
     return await this.generateTokens(user);
+  }
+  public async createManagerAccount(body: Partial<IUser>): Promise<IUser> {
+    const hashedPassword = await passwordService.hash(
+      config.DEFAULT_MANAGER_PASSWORD,
+    );
+
+    const manager = await userRepository.create({
+      ...body,
+      password: hashedPassword,
+      role: ERole.MANAGER,
+    });
+    const actionToken = tokenService.generateActionToken(
+      { _userId: manager._id, role: manager.role },
+      EActionTokenType.SETUP_MANAGER,
+    );
+
+    await actionTokenRepository.create({
+      token: actionToken,
+      user_id: manager._id,
+    });
+    // await emailService.sendByEmailType(
+    //   EEmailType.SETUP_MANAGER_PASSWORD,
+    //   {
+    //     frontUrl: config.FRONT_URL,
+    //     fullName: `${manager.firstName} ${manager.lastName}`,
+    //     actionToken,
+    //   },
+    //   manager.email,
+    // );
+    return manager;
+  }
+  public async setManagerPassword(
+    password: string,
+    userId: string,
+    actionTokenId: string,
+  ): Promise<void> {
+    const manager = await userRepository.getById(userId);
+    const hashedPassword = await passwordService.hash(password);
+    await userRepository.updateById(manager._id, {
+      password: hashedPassword,
+    });
+    return await actionTokenRepository.deleteByParams({ _id: actionTokenId });
+  }
+  public async changePassword(
+    dto: IChangePassword,
+    userId: string,
+  ): Promise<void> {
+    const user = await userRepository.getById(userId);
+    const isMatched = await passwordService.compare(
+      dto.oldPassword,
+      user.password,
+    );
+    if (!isMatched) {
+      throw new ApiError(
+        statusCode.BAD_REQUEST,
+        errorMessages.WRONG_OLD_PASSWORD,
+      );
+    }
+    const hashedPassword = await passwordService.hash(dto.newPassword);
+    await userRepository.updateById(userId, { password: hashedPassword });
+
+    await tokenRepository.deleteManyByParams({ _userId: userId });
   }
   private throwWrongCredentialsError(): never {
     throw new ApiError(

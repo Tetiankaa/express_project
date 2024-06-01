@@ -12,11 +12,11 @@ class CarSuggestionsRepository {
   public async getAll(
     query?: IQuery,
   ): Promise<IListResponse<IMissingBrandModel>> {
-    const { page = 1, limit = 20 } = query;
+    const { page = 1, limit = 20, isResolved } = query;
     const skip: number = (page - 1) * limit;
     const filterObj: FilterQuery<IMissingBrandModel> = {};
 
-    if (query.isResolved) {
+    if (isResolved) {
       filterObj.isResolved = query.isResolved;
     }
 

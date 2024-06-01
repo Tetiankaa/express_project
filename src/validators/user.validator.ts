@@ -36,7 +36,7 @@ export class UserValidator {
       "string.empty": "Phone number cannot be an empty field",
       "any.required": "Phone number is a required field",
     });
-  public static create = Joi.object({
+  public static register = Joi.object({
     email: this.email.required(),
     password: this.password.required(),
     phone: this.phone.required(),
@@ -52,5 +52,18 @@ export class UserValidator {
     phone: this.phone,
     firstName: this.firstName,
     lastName: this.lastName,
+  });
+  public static createManager = Joi.object({
+    email: this.email.required(),
+    phone: this.phone.required(),
+    firstName: this.firstName.required(),
+    lastName: this.lastName.required(),
+  });
+  public static setPassword = Joi.object({
+    password: this.password.required(),
+  });
+  public static changePassword = Joi.object({
+    oldPassword: this.password.required(),
+    newPassword: this.password.required(),
   });
 }

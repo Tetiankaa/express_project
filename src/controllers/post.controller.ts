@@ -153,5 +153,19 @@ class PostController {
       next(e);
     }
   }
+  public async getPostWithProfanityById(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const postId = req.params.id;
+      const post = await postService.getPostWithProfanityById(postId);
+      const response = PostMapper.toPrivatePost(post);
+      res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 export const postController = new PostController();

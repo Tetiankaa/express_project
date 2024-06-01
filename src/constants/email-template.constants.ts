@@ -13,4 +13,10 @@ export const emailTemplateConstants = {
   [EEmailType.POST_PROFANITY_DETECTED_FOR_MANAGER]: {
     templateId: "d-21c98ae6efc94843bd48ff6cb14f7bf7",
   },
+  [EEmailType.SETUP_MANAGER_PASSWORD]: {
+    templateId: "d-186230052a67489aa87742cd881625c6",
+  },
+  [EEmailType.FORGOT_PASSWORD]: {
+    templateId: "d-1f11723ac6df45ef80633478867574a9",
+  },
 };

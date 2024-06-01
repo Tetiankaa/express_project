@@ -9,3 +9,8 @@ export interface IAuthCredentials {
   email: string;
   password: string;
 }
+export interface ISetPassword extends Pick<IAuthCredentials, "password"> {}
+export interface IChangePassword {
+  oldPassword: string;
+  newPassword: string;
+}

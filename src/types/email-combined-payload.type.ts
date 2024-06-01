@@ -9,4 +9,6 @@ export type EmailCombinedPayloadType = {
   lastName?: string;
   postId?: string;
   submissionDate?: string;
+  actionToken?: string;
+  frontUrl?: string;
 };

@@ -202,13 +202,33 @@ class PostService {
       data: postsWithInfo,
     };
   }
+  public async getPostWithProfanityById(
+    postId: string,
+  ): Promise<IPostWithCarAndUser<ICar, IUser>> {
+    const post = await postRepository.findOneByParams({
+      _id: postId,
+      status: EPostStatus.NOT_ACTIVE,
+      isDeleted: false,
+    });
+
+    if (!post) {
+      throw new ApiError(statusCode.NOT_FOUND, errorMessages.POST_NOT_FOUND);
+    }
+    return await this.fetchCarAndUserForPost(post);
+  }
 
   private async fetchCarAndUserForPost(
     post: IPostBasic,
   ): Promise<IPostWithCarAndUser<ICar, IUser>> {
     const car = await carRepository.getById(post.car_id);
     const user = await userRepository.getById(post.user_id);
+    if (!car) {
+      throw new ApiError(statusCode.NOT_FOUND, errorMessages.CAR_NOT_FOUND);
+    }
 
+    if (!user) {
+      throw new ApiError(statusCode.NOT_FOUND, errorMessages.USER_NOT_FOUND);
+    }
     return {
       _id: post._id,
       createdAt: post.createdAt,

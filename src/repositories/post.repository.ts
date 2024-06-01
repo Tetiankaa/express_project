@@ -1,6 +1,11 @@
-import { FilterQuery, UpdateQuery } from "mongoose";
+import { FilterQuery, SortOrder, UpdateQuery } from "mongoose";
 
+import { errorMessages } from "../constants/error-messages.constant";
+import { statusCode } from "../constants/status-codes.constant";
+import { EOrder } from "../enums/order.enum";
+import { EPostOrderBy } from "../enums/post-order.enum";
 import { EPostStatus } from "../enums/post-status.enum";
+import { ApiError } from "../errors/api-error";
 import { IListResponse } from "../interfaces/list-response.interface";
 import { IPostBasic } from "../interfaces/post.interface";
 import { IQuery } from "../interfaces/query.interface";
@@ -12,14 +17,28 @@ class PostRepository {
     filter?: FilterQuery<IPostBasic>,
     applyDefaultFilter: boolean = true,
   ): Promise<IListResponse<IPostBasic>> {
-    const { page = 1, limit = 20, postId } = query;
+    const {
+      page = 1,
+      limit = 20,
+      order = EOrder.DESC,
+      orderBy = EPostOrderBy.UPDATED_AT,
+      isDeleted,
+    } = query;
     const skip: number = (+page - 1) * +limit;
     const filterObj: FilterQuery<IPostBasic> = {};
-    console.log(postId)
-    if (postId) {
-      Object.assign(filterObj, {
-        _id: postId,
-      });
+    const sortObj: { [key: string]: SortOrder } = {};
+
+    if (orderBy) {
+      switch (orderBy) {
+        case EPostOrderBy.UPDATED_AT:
+          sortObj.updatedAt = order;
+          break;
+        default:
+          throw new ApiError(
+            statusCode.BAD_REQUEST,
+            errorMessages.INVALID_ORDER_BY,
+          );
+      }
     }
     if (applyDefaultFilter) {
       Object.assign(filterObj, {
@@ -27,7 +46,7 @@ class PostRepository {
         status: EPostStatus.ACTIVE,
       });
     }
-    if (query.isDeleted) {
+    if (isDeleted) {
       Object.assign(filterObj, {
         isDeleted: query.isDeleted,
       });
@@ -35,7 +54,10 @@ class PostRepository {
     if (filter) {
       Object.assign(filterObj, filter);
     }
-    const posts = await Post.find(filterObj).skip(skip).limit(+limit);
+    const posts = await Post.find(filterObj)
+      .skip(skip)
+      .limit(+limit)
+      .sort(sortObj);
     const totalFilteredPosts = posts.length;
     const totalAllPosts = await Post.countDocuments(filterObj);
     return {

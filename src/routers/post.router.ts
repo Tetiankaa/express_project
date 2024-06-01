@@ -34,6 +34,13 @@ router.get(
   postController.getPostsWithProfanity,
 );
 router.get(
+  "/profanity-detected/:id",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  authMiddleware.isAdminOrManager,
+  commonMiddleware.isIdValid,
+  postController.getPostWithProfanityById,
+);
+router.get(
   "/:id",
   commonMiddleware.isIdValid,
   postController.getPublicPostById,

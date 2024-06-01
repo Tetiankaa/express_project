@@ -24,4 +24,12 @@ export type EmailPayloadType = {
     | "postId"
     | "submissionDate"
   >;
+  [EEmailType.SETUP_MANAGER_PASSWORD]: PickRequiredType<
+    EmailCombinedPayloadType,
+    "fullName" | "frontUrl" | "actionToken"
+  >;
+  [EEmailType.FORGOT_PASSWORD]: PickRequiredType<
+    EmailCombinedPayloadType,
+    "frontUrl" | "fullName" | "actionToken" | "email"
+  >;
 };

@@ -4,5 +4,5 @@ import { ERole } from "../enums/role.enum";
 export interface IJwtPayload {
   _userId: string;
   role: ERole;
-  accountType: EAccountType;
+  accountType?: EAccountType;
 }

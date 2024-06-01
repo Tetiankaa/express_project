@@ -21,7 +21,6 @@ class UserService {
     return await this.findUserOrThrow(userId);
   }
   public async deleteMe(userId: string): Promise<void> {
-    console.log(userId);
     await this.findUserOrThrow(userId);
     await tokenRepository.deleteManyByParams({ _userId: userId });
     const posts = await postRepository.findByParams({ user_id: userId });
