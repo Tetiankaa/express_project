@@ -2,17 +2,21 @@ import { config } from "../configs/config";
 import { errorMessages } from "../constants/error-messages.constant";
 import { statusCode } from "../constants/status-codes.constant";
 import { EActionTokenType } from "../enums/action-token-type.enum";
+import { EEmailType } from "../enums/email-type.enum";
 import { ERole } from "../enums/role.enum";
 import { ApiError } from "../errors/api-error";
 import {
   IAuthCredentials,
   IChangePassword,
+  IForgotPassword,
+  ISetPassword,
 } from "../interfaces/auth.interface";
 import { ITokenResponse } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
 import { actionTokenRepository } from "../repositories/action-token.repository";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
+import { emailService } from "./email.service";
 import { passwordService } from "./password.service";
 import { tokenService } from "./token.service";
 
@@ -84,6 +88,7 @@ class AuthService {
     await actionTokenRepository.create({
       token: actionToken,
       user_id: manager._id,
+      tokenType: EActionTokenType.SETUP_MANAGER,
     });
     // await emailService.sendByEmailType(
     //   EEmailType.SETUP_MANAGER_PASSWORD,
@@ -126,6 +131,41 @@ class AuthService {
     const hashedPassword = await passwordService.hash(dto.newPassword);
     await userRepository.updateById(userId, { password: hashedPassword });
 
+    await tokenRepository.deleteManyByParams({ _userId: userId });
+  }
+  public async forgotPassword(dto: IForgotPassword): Promise<void> {
+    const { email } = dto;
+    const user = await userRepository.findByParams({ email });
+    if (!user) return;
+    const actionToken = tokenService.generateActionToken(
+      { _userId: user._id, role: user.role, accountType: user.accountType },
+      EActionTokenType.FORGOT_PASSWORD,
+    );
+    await actionTokenRepository.create({
+      token: actionToken,
+      user_id: user._id,
+      tokenType: EActionTokenType.FORGOT_PASSWORD,
+    });
+    await emailService.sendByEmailType(
+      EEmailType.FORGOT_PASSWORD,
+      {
+        email,
+        actionToken,
+        fullName: `${user.firstName} ${user.lastName}`,
+        frontUrl: config.FRONT_URL,
+      },
+      user.email,
+    );
+  }
+  public async setForgotPassword(
+    newPassword: ISetPassword,
+    userId: string,
+    actionTokenId: string,
+  ): Promise<void> {
+    const user = await userRepository.getById(userId);
+    const hashedPassword = await passwordService.hash(newPassword.password);
+    await userRepository.updateById(user._id, { password: hashedPassword });
+    await actionTokenRepository.deleteByParams({ _id: actionTokenId });
     await tokenRepository.deleteManyByParams({ _userId: userId });
   }
   private throwWrongCredentialsError(): never {

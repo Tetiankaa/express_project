@@ -14,3 +14,4 @@ export interface IChangePassword {
   oldPassword: string;
   newPassword: string;
 }
+export interface IForgotPassword extends Pick<IAuthCredentials, "email"> {}

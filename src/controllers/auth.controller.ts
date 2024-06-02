@@ -5,6 +5,7 @@ import { IActionToken } from "../interfaces/action-token.interface";
 import {
   IAuthCredentials,
   IChangePassword,
+  IForgotPassword,
   ISetPassword,
 } from "../interfaces/auth.interface";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
@@ -79,6 +80,30 @@ class AuthController {
       const body = req.body as IChangePassword;
       const { _userId } = req.res.locals.jwtPayload as IJwtPayload;
       await authService.changePassword(body, _userId);
+      res.sendStatus(statusCode.CREATED);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async forgotPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const body = req.body as IForgotPassword;
+      await authService.forgotPassword(body);
+      res.sendStatus(statusCode.CREATED);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async setForgotPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const body = req.body as ISetPassword;
+      const { _userId } = req.res.locals.jwtPayload as IJwtPayload;
+      const { _id } = req.res.locals.actionTokenDb as IActionToken;
+      await authService.setForgotPassword(body, _userId, _id);
       res.sendStatus(statusCode.CREATED);
     } catch (e) {
       next(e);
