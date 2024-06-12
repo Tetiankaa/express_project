@@ -21,4 +21,7 @@ export const errorMessages = {
   INVALID_ORDER_BY: "Invalid orderBy",
   INVALID_TOKEN_TYPE: "Invalid token type",
   WRONG_OLD_PASSWORD: "Wrong  old password",
+  INVALID_CURRENCY_TYPE: "Invalid currency type",
+  INTERNAL_SERVER_ERROR: "Internal Server Error",
+  PRICE_AND_CURRENCY_REQUIRED: "Both price and currency are required",
 };

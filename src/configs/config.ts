@@ -26,4 +26,5 @@ export const config = {
     process.env.ACTION_TOKEN_FORGOT_PASSWORD_EXPIRES_IN,
   FRONT_URL: process.env.FRONT_URL,
   DEFAULT_MANAGER_PASSWORD: process.env.DEFAULT_MANAGER_PASSWORD,
+  API_PRIVATBANK: process.env.API_PRIVATBANK,
 };

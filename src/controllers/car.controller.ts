@@ -2,37 +2,13 @@ import { NextFunction, Request, Response } from "express";
 
 import { statusCode } from "../constants/status-codes.constant";
 import { IBrandModelInput } from "../interfaces/brand-model-input.interface";
-import { ICar, ICarDto } from "../interfaces/car.interface";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IMissingBrandModel } from "../interfaces/missing-brand-model.interface";
-import { IPostWithCarAndUser } from "../interfaces/post.interface";
 import { IQuery } from "../interfaces/query.interface";
-import { ITokenDB, ITokenResponse } from "../interfaces/token.interface";
-import { IUserDTO } from "../interfaces/user.interface";
 import { CarSuggestionMapper } from "../mappers/car-suggestion.mapper";
-import { PostMapper } from "../mappers/post.mapper";
 import { carService } from "../services/car.service";
 
 class CarController {
-  public async saveCar(req: Request, res: Response, next: NextFunction) {
-    try {
-      const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
-      const { _id } = req.res.locals.tokenPair as ITokenDB;
-      const carToSave = req.body as Partial<ICar>;
-      const savedPost = await carService.saveCar(carToSave, jwtPayload, _id);
-      const response: {
-        data: IPostWithCarAndUser<ICarDto, IUserDTO>;
-        tokens?: ITokenResponse;
-      } = {
-        data: PostMapper.toPrivatePost(savedPost.data),
-        tokens: savedPost.tokens,
-      };
-      res.status(statusCode.CREATED).json(response);
-      next();
-    } catch (e) {
-      next(e);
-    }
-  }
   public async getCurrencies(req: Request, res: Response, next: NextFunction) {
     try {
       const currencies = await carService.getCurrencies();

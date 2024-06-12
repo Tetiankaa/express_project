@@ -14,4 +14,4 @@ const handler = async () => {
   }
 };
 
-export const removeResolvedCarSuggestions = new CronJob("* * * * * *", handler);
+export const removeResolvedCarSuggestions = new CronJob("* * 4 * * *", handler);

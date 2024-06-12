@@ -9,6 +9,14 @@ import { CarValidator } from "../validators/car.validator";
 
 const router = Router();
 
+router.post(
+  "",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  commonMiddleware.isBodyValid(CarValidator.create),
+  postMiddleware.checkBasicAccountPostLimit,
+  postMiddleware.calculatePrices,
+  postController.saveCar,
+);
 router.get("", postController.getAll);
 router.get(
   "/my",
@@ -65,6 +73,8 @@ router.put(
   commonMiddleware.isIdValid,
   postMiddleware.isPostNotDeletedAndActive,
   commonMiddleware.isBodyValid(CarValidator.update),
+  commonMiddleware.validatePriceAndCurrency,
+  postMiddleware.calculatePrices,
   postController.updatePost,
 );
 router.put(
@@ -79,7 +89,7 @@ router.patch(
   authMiddleware.verifyToken(ETokenType.ACCESS),
   commonMiddleware.isIdValid,
   postMiddleware.isResubmissionAllowed,
-  commonMiddleware.isBodyValid(CarValidator.update),
+  commonMiddleware.isBodyValid(CarValidator.updateAfterProfanity),
   postController.updatePostAfterProfanity,
 );
 // TODO endpoint for admin getAllBlockedAfterProfanityPosts

@@ -8,13 +8,6 @@ import { CarValidator } from "../validators/car.validator";
 
 const router = Router();
 
-router.post(
-  "",
-  authMiddleware.verifyToken(ETokenType.ACCESS),
-  commonMiddleware.isBodyValid(CarValidator.create),
-  carController.saveCar,
-);
-
 router.get("/currencies", carController.getCurrencies);
 router.get("/brands", carController.getBrands);
 router.post(

@@ -1,14 +1,44 @@
 import { NextFunction, Request, Response } from "express";
 
 import { statusCode } from "../constants/status-codes.constant";
-import { ICar } from "../interfaces/car.interface";
+import { ICar, ICarDto } from "../interfaces/car.interface";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
-import { IPostBasic } from "../interfaces/post.interface";
+import { IPostBasic, IPostWithCarAndUser } from "../interfaces/post.interface";
+import { IPrice } from "../interfaces/price.interface";
 import { IQuery } from "../interfaces/query.interface";
+import { ITokenDB, ITokenResponse } from "../interfaces/token.interface";
+import { IUserDTO } from "../interfaces/user.interface";
 import { PostMapper } from "../mappers/post.mapper";
 import { postService } from "../services/post.service";
 
 class PostController {
+  public async saveCar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
+      const { _id } = req.res.locals.tokenPair as ITokenDB;
+      const carToSave = req.body as Partial<ICar>;
+      const prices = req.res.locals.prices as IPrice[];
+      const postsCount = req.res.locals.postsCount as number;
+      const savedPost = await postService.saveCar(
+        carToSave,
+        jwtPayload,
+        _id,
+        prices,
+        postsCount,
+      );
+      const response: {
+        data: IPostWithCarAndUser<ICarDto, IUserDTO>;
+        tokens?: ITokenResponse;
+      } = {
+        data: PostMapper.toPrivatePost(savedPost.data),
+        tokens: savedPost.tokens,
+      };
+      res.status(statusCode.CREATED).json(response);
+      next();
+    } catch (e) {
+      next(e);
+    }
+  }
   public async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const query = req.query as IQuery;
@@ -105,7 +135,13 @@ class PostController {
       const postToUpdate = req.res.locals.postToUpdate as IPostBasic;
       const carBody = req.body as Partial<ICar>;
       const { _userId } = req.res.locals.jwtPayload as IJwtPayload;
-      const post = await postService.updatePost(postToUpdate, carBody, _userId);
+      const prices = req.res.locals.prices as IPrice[];
+      const post = await postService.updatePost(
+        postToUpdate,
+        carBody,
+        _userId,
+        prices,
+      );
       const response = PostMapper.toPrivatePost(post);
       res.status(statusCode.CREATED).json(response);
     } catch (e) {

@@ -3,11 +3,15 @@ import { NextFunction, Request, Response } from "express";
 import { config } from "../configs/config";
 import { errorMessages } from "../constants/error-messages.constant";
 import { statusCode } from "../constants/status-codes.constant";
+import { EAccountType } from "../enums/account-type.enum";
 import { EPostStatus } from "../enums/post-status.enum";
 import { ApiError } from "../errors/api-error";
+import { ICar } from "../interfaces/car.interface";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IPostBasic } from "../interfaces/post.interface";
+import { IPrice } from "../interfaces/price.interface";
 import { postRepository } from "../repositories/post.repository";
+import { currencyService } from "../services/currency.service";
 
 class PostMiddleware {
   public async isPostExistsAnsBelongsToUser(
@@ -100,6 +104,51 @@ class PostMiddleware {
         );
       }
       req.res.locals.oldPost = post as IPostBasic;
+      next();
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async calculatePrices(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { enteredPrice, enteredCurrency } = req.body as Partial<ICar>;
+
+      if (enteredPrice && enteredCurrency) {
+        const calculated = await currencyService.calculatePrices(
+          enteredPrice,
+          enteredCurrency,
+        );
+
+        req.res.locals.prices = calculated as IPrice[];
+      }
+      next();
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async checkBasicAccountPostLimit(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
+
+      const postsCount = await postRepository.countDocumentsByParams({
+        user_id: jwtPayload._userId,
+      });
+
+      if (jwtPayload.accountType === EAccountType.BASIC && postsCount >= 1) {
+        throw new ApiError(
+          statusCode.FORBIDDEN,
+          errorMessages.ONE_POST_FOR_BASIC_ACCOUNT,
+        );
+      }
+      req.res.locals.postsCount = postsCount as number;
       next();
     } catch (e) {
       next(e);

@@ -1,5 +1,6 @@
 import { ECurrency } from "../enums/currency.enum";
 import { EPostStatus } from "../enums/post-status.enum";
+import {IPrice} from "./price.interface";
 
 export interface ICar {
   _id: string;
@@ -10,10 +11,11 @@ export interface ICar {
   region: string;
   city: string;
   color: string;
-  currency: ECurrency;
-  price: number;
+  enteredCurrency: ECurrency;
+  enteredPrice: number;
   description: string;
   photo: string;
+  prices?: IPrice[];
 }
 export interface ICarDto {
   _id: string;
@@ -24,10 +26,11 @@ export interface ICarDto {
   region: string;
   city: string;
   color: string;
-  currency: ECurrency;
-  price: number;
+  enteredCurrency: ECurrency;
+  enteredPrice: number;
   description: string;
   photo: string;
+  prices?: IPrice[];
 }
 export interface ICarResponse {
   car: ICar;

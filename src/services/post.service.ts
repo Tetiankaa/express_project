@@ -3,20 +3,80 @@ import { errorMessages } from "../constants/error-messages.constant";
 import { statusCode } from "../constants/status-codes.constant";
 import { EEmailType } from "../enums/email-type.enum";
 import { EPostStatus } from "../enums/post-status.enum";
+import { ERole } from "../enums/role.enum";
 import { ApiError } from "../errors/api-error";
 import { TimeHelper } from "../helpers/time.helper";
 import { ICar } from "../interfaces/car.interface";
+import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IListResponse } from "../interfaces/list-response.interface";
 import { IPostBasic, IPostWithCarAndUser } from "../interfaces/post.interface";
+import { IPrice } from "../interfaces/price.interface";
 import { IQuery } from "../interfaces/query.interface";
+import { ITokenResponse } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
 import { carRepository } from "../repositories/car.repository";
 import { postRepository } from "../repositories/post.repository";
+import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
+import { authService } from "./auth.service";
 import { emailService } from "./email.service";
 import { profanityService } from "./profanity.service";
 
 class PostService {
+  public async saveCar(
+    car: Partial<ICar>,
+    jwtPayload: IJwtPayload,
+    oldTokenId: string,
+    prices: IPrice[],
+    postsCount: number,
+  ): Promise<{
+    data: IPostWithCarAndUser<ICar, IUser>;
+    tokens?: ITokenResponse;
+  }> {
+    const isProfanityPresent = profanityService.checkForProfanity(car);
+
+    const savedCar = await carRepository.create({ ...car, prices });
+    const post = await postRepository.create({
+      user_id: jwtPayload._userId,
+      car_id: savedCar._id,
+      profanityEdits: 0,
+      status: isProfanityPresent ? EPostStatus.NOT_ACTIVE : EPostStatus.ACTIVE,
+    });
+    const user = await userRepository.getById(jwtPayload._userId);
+
+    let tokens: ITokenResponse;
+    if (postsCount === 0 && jwtPayload.role === ERole.BUYER) {
+      const user = await userRepository.updateById(jwtPayload._userId, {
+        role: ERole.SELLER,
+      });
+      await tokenRepository.deleteById(oldTokenId);
+      tokens = await authService.generateTokens(user);
+    }
+    if (isProfanityPresent) {
+      await emailService.sendByEmailType(
+        EEmailType.POST_PROFANITY_DETECTED_FOR_USER,
+        {
+          firstName: user.firstName,
+          numberOfAttempts: config.MAX_PROFANITY_EDITS,
+        },
+        user.email,
+      );
+    }
+
+    return {
+      data: {
+        car: savedCar,
+        user,
+        status: post.status,
+        profanityEdits: post.profanityEdits,
+        isDeleted: post.isDeleted,
+        _id: post._id,
+        createdAt: post.createdAt,
+        updatedAt: post.updatedAt,
+      },
+      tokens,
+    };
+  }
   public async getAll(
     query: IQuery,
   ): Promise<IListResponse<IPostWithCarAndUser<ICar, IUser>>> {
@@ -101,8 +161,10 @@ class PostService {
     post: IPostBasic,
     car: Partial<ICar>,
     user_id: string,
+    prices: IPrice[],
   ): Promise<IPostWithCarAndUser<ICar, IUser>> {
-    // TODO check if currency was updated and recalculate the price
+    console.log(prices);
+
     const user = await userRepository.getById(user_id);
     const isProfanityPresent = profanityService.checkForProfanity(car);
     if (isProfanityPresent) {
@@ -115,7 +177,7 @@ class PostService {
         user.email,
       );
     }
-    await carRepository.updateById(post.car_id, { ...car });
+    await carRepository.updateById(post.car_id, { ...car, prices });
     return await this.fetchCarAndUserForPost(post);
   }
   public async restorePost(

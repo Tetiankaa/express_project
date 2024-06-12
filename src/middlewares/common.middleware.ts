@@ -5,6 +5,7 @@ import { isObjectIdOrHexString } from "mongoose";
 import { errorMessages } from "../constants/error-messages.constant";
 import { statusCode } from "../constants/status-codes.constant";
 import { ApiError } from "../errors/api-error";
+import { ICar } from "../interfaces/car.interface";
 
 class CommonMiddleware {
   public isBodyValid(validator: ObjectSchema) {
@@ -26,6 +27,34 @@ class CommonMiddleware {
       const id = req.params.id;
       if (!isObjectIdOrHexString(id)) {
         throw new ApiError(statusCode.NOT_FOUND, errorMessages.INVALID_ID);
+      }
+      next();
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async validatePriceAndCurrency(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { enteredCurrency, enteredPrice } = req.body as Partial<ICar>;
+      if (enteredPrice) {
+        if (!enteredCurrency) {
+          throw new ApiError(
+            statusCode.BAD_REQUEST,
+            errorMessages.PRICE_AND_CURRENCY_REQUIRED,
+          );
+        }
+      }
+      if (enteredCurrency) {
+        if (!enteredPrice) {
+          throw new ApiError(
+            statusCode.BAD_REQUEST,
+            errorMessages.PRICE_AND_CURRENCY_REQUIRED,
+          );
+        }
       }
       next();
     } catch (e) {

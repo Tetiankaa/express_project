@@ -55,10 +55,10 @@ export class CarValidator {
     city: this.baseStringValidation.required(),
     color: this.baseStringValidation.required(),
     description: this.description.required(),
-    price: this.numericFieldValidation.required(),
+    enteredPrice: this.numericFieldValidation.required(),
     mileage: this.numericFieldValidation.required(),
     year: this.year.required(),
-    currency: this.currency.required(),
+    enteredCurrency: this.currency.required(),
   });
   public static reportMissingBrandModel = Joi.object({
     brand: this.carFieldValidation.required(),
@@ -72,15 +72,23 @@ export class CarValidator {
     model: this.carFieldValidation.required(),
   });
   public static update = Joi.object({
-    brand: this.carFieldValidation,
-    model: this.carFieldValidation,
-    region: this.baseStringValidation,
-    city: this.baseStringValidation,
-    color: this.baseStringValidation,
     description: this.description,
-    price: this.numericFieldValidation,
+    model: this.carFieldValidation,
+    brand: this.carFieldValidation,
+    city: this.baseStringValidation,
+    region: this.baseStringValidation,
+    color: this.baseStringValidation,
+    enteredPrice: this.numericFieldValidation,
     mileage: this.numericFieldValidation,
     year: this.year,
-    currency: this.currency,
+    enteredCurrency: this.currency,
+  });
+  public static updateAfterProfanity = Joi.object({
+    description: this.description,
+    model: this.carFieldValidation,
+    brand: this.carFieldValidation,
+    city: this.baseStringValidation,
+    region: this.baseStringValidation,
+    color: this.baseStringValidation,
   });
 }
