@@ -163,8 +163,6 @@ class PostService {
     user_id: string,
     prices: IPrice[],
   ): Promise<IPostWithCarAndUser<ICar, IUser>> {
-    console.log(prices);
-
     const user = await userRepository.getById(user_id);
     const isProfanityPresent = profanityService.checkForProfanity(car);
     if (isProfanityPresent) {
@@ -278,7 +276,6 @@ class PostService {
     }
     return await this.fetchCarAndUserForPost(post);
   }
-
   private async fetchCarAndUserForPost(
     post: IPostBasic,
   ): Promise<IPostWithCarAndUser<ICar, IUser>> {

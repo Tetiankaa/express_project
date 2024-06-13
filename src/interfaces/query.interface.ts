@@ -9,4 +9,5 @@ export interface IQuery {
   updatedAt?: Date;
   order?: EOrder;
   orderBy?: EPostOrderBy;
+  profanityEdits?: number;
 }

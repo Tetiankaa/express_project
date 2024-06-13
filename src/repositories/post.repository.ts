@@ -23,6 +23,7 @@ class PostRepository {
       order = EOrder.DESC,
       orderBy = EPostOrderBy.UPDATED_AT,
       isDeleted,
+      profanityEdits,
     } = query;
     const skip: number = (+page - 1) * +limit;
     const filterObj: FilterQuery<IPostBasic> = {};
@@ -46,13 +47,14 @@ class PostRepository {
         status: EPostStatus.ACTIVE,
       });
     }
-    if (isDeleted) {
-      Object.assign(filterObj, {
-        isDeleted: query.isDeleted,
-      });
+    if (typeof isDeleted !== "undefined") {
+      filterObj.isDeleted = isDeleted;
     }
     if (filter) {
       Object.assign(filterObj, filter);
+    }
+    if (profanityEdits) {
+      filterObj.profanityEdits = profanityEdits;
     }
     const posts = await Post.find(filterObj)
       .skip(skip)

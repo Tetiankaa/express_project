@@ -92,5 +92,4 @@ router.patch(
   commonMiddleware.isBodyValid(CarValidator.updateAfterProfanity),
   postController.updatePostAfterProfanity,
 );
-// TODO endpoint for admin getAllBlockedAfterProfanityPosts
 export const postRouter = router;
