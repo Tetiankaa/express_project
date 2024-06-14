@@ -2,21 +2,36 @@ import { errorMessages } from "../constants/error-messages.constant";
 import { statusCode } from "../constants/status-codes.constant";
 import { ECurrency } from "../enums/currency.enum";
 import { ApiError } from "../errors/api-error";
+import { IExchangeRate } from "../interfaces/exchange-rate.interface";
 import { IPrice } from "../interfaces/price.interface";
 import { exchangeRateRepository } from "../repositories/exchange-rate.repository";
 
 class CurrencyService {
+  public async getExchangeRates(): Promise<{
+    rates: { usd: IExchangeRate; eur: IExchangeRate };
+  }> {
+    const usd = await exchangeRateRepository.findBy({
+      ccy: ECurrency.USD,
+    });
+    const eur = await exchangeRateRepository.findBy({
+      ccy: ECurrency.EUR,
+    });
+
+    return {
+      rates: {
+        usd,
+        eur,
+      },
+    };
+  }
+
   public async calculatePrices(
     enteredPrice: number,
     enteredCurrency: ECurrency,
+    usdRate: IExchangeRate,
+    eurRate: IExchangeRate,
   ): Promise<IPrice[]> {
     try {
-      const usdRate = await exchangeRateRepository.findBy({
-        ccy: ECurrency.USD,
-      });
-      const eurRate = await exchangeRateRepository.findBy({
-        ccy: ECurrency.EUR,
-      });
       let uah: IPrice;
       let eur: IPrice;
       let usd: IPrice;

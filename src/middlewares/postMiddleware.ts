@@ -75,6 +75,7 @@ class PostMiddleware {
       if (!post) {
         throw new ApiError(statusCode.NOT_FOUND, errorMessages.POST_NOT_FOUND);
       }
+      req.res.locals.deletedPost = post as IPostBasic;
       next();
     } catch (e) {
       next(e);
@@ -118,9 +119,14 @@ class PostMiddleware {
       const { enteredPrice, enteredCurrency } = req.body as Partial<ICar>;
 
       if (enteredPrice && enteredCurrency) {
+        const {
+          rates: { usd, eur },
+        } = await currencyService.getExchangeRates();
         const calculated = await currencyService.calculatePrices(
           enteredPrice,
           enteredCurrency,
+          usd,
+          eur,
         );
 
         req.res.locals.prices = calculated as IPrice[];
@@ -149,6 +155,20 @@ class PostMiddleware {
         );
       }
       req.res.locals.postsCount = postsCount as number;
+      next();
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async isPostExists(req: Request, res: Response, next: NextFunction) {
+    try {
+      const postId = req.params.id;
+      const post = await postRepository.findOneByParams({ _id: postId });
+
+      if (!post) {
+        throw new ApiError(statusCode.NOT_FOUND, errorMessages.POST_NOT_FOUND);
+      }
       next();
     } catch (e) {
       next(e);

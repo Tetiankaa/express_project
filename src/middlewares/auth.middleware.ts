@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 
 import { errorMessages } from "../constants/error-messages.constant";
 import { statusCode } from "../constants/status-codes.constant";
+import { EAccountType } from "../enums/account-type.enum";
 import { EActionTokenType } from "../enums/action-token-type.enum";
 import { ERole } from "../enums/role.enum";
 import { ETokenType } from "../enums/token-type.enum";
@@ -133,6 +134,26 @@ class AuthMiddleware {
         next(e);
       }
     };
+  }
+  public async isPremiumAccount(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { accountType } = req.res.locals.jwtPayload as IJwtPayload;
+
+      if (accountType !== EAccountType.PREMIUM) {
+        throw new ApiError(
+          statusCode.FORBIDDEN,
+          errorMessages.ACCESS_DENIED_FOR_BASIC_ACCOUNT,
+        );
+      }
+
+      next();
+    } catch (e) {
+      next(e);
+    }
   }
 }
 

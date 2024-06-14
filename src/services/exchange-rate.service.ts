@@ -1,6 +1,9 @@
 import axios from "axios";
 
 import { config } from "../configs/config";
+import { errorMessages } from "../constants/error-messages.constant";
+import { statusCode } from "../constants/status-codes.constant";
+import { ApiError } from "../errors/api-error";
 import { IExchangeRateAPI } from "../interfaces/exchange-rate.interface";
 
 class ExchangeRateService {
@@ -9,7 +12,10 @@ class ExchangeRateService {
       const { data } = await axios.get(config.API_PRIVATBANK);
       return data;
     } catch (e) {
-      throw new Error("Could not fetch exchange rates");
+      throw new ApiError(
+        statusCode.SERVICE_UNAVAILABLE,
+        errorMessages.CANNOT_FETCH_EXCHANGE_RATES,
+      );
     }
   }
 }

@@ -27,4 +27,5 @@ export const config = {
   FRONT_URL: process.env.FRONT_URL,
   DEFAULT_MANAGER_PASSWORD: process.env.DEFAULT_MANAGER_PASSWORD,
   API_PRIVATBANK: process.env.API_PRIVATBANK,
+  BATCH_SIZE: Number(process.env.BATCH_SIZE),
 };

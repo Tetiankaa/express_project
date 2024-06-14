@@ -17,6 +17,12 @@ router.post(
   postMiddleware.calculatePrices,
   postController.saveCar,
 );
+router.post(
+  "/:id/view",
+  commonMiddleware.isIdValid,
+  postMiddleware.isPostExists,
+  postController.saveView,
+);
 router.get("", postController.getAll);
 router.get(
   "/my",
@@ -35,6 +41,12 @@ router.get(
   postMiddleware.isPostExistsAnsBelongsToUser,
   postController.getPrivatePostById,
 );
+router.get("/my/info/:id",
+    authMiddleware.verifyToken(ETokenType.ACCESS),
+    authMiddleware.isPremiumAccount,
+    commonMiddleware.isIdValid,
+    postController.
+    )
 router.get(
   "/profanity-detected",
   authMiddleware.verifyToken(ETokenType.ACCESS),
@@ -84,6 +96,7 @@ router.put(
   postMiddleware.isPostDeletedAndNotActive,
   postController.restorePost,
 );
+
 router.patch(
   "/my/resubmit-after-profanity/:id",
   authMiddleware.verifyToken(ETokenType.ACCESS),

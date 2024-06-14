@@ -112,6 +112,11 @@ class PostRepository {
       returnDocument: "after",
     });
   }
+
+  public async getCarIds(filter: FilterQuery<IPostBasic>): Promise<string[]> {
+    const objects = await Post.find(filter).select("car_id -_id");
+    return objects.map((value) => value.car_id);
+  }
 }
 
 export const postRepository = new PostRepository();

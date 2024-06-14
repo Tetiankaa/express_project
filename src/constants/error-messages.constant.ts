@@ -24,4 +24,7 @@ export const errorMessages = {
   INVALID_CURRENCY_TYPE: "Invalid currency type",
   INTERNAL_SERVER_ERROR: "Internal Server Error",
   PRICE_AND_CURRENCY_REQUIRED: "Both price and currency are required",
+  CANNOT_FETCH_EXCHANGE_RATES: "Could not fetch exchange rates",
+  ACCESS_DENIED_FOR_BASIC_ACCOUNT:
+    "Only users with Premium account type can access the information about post.",
 };

@@ -18,7 +18,9 @@ import { carRepository } from "../repositories/car.repository";
 import { postRepository } from "../repositories/post.repository";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
+import { viewRepository } from "../repositories/view.repository";
 import { authService } from "./auth.service";
+import { currencyService } from "./currency.service";
 import { emailService } from "./email.service";
 import { profanityService } from "./profanity.service";
 
@@ -179,9 +181,25 @@ class PostService {
     return await this.fetchCarAndUserForPost(post);
   }
   public async restorePost(
-    postId: string,
+    deletedPost: IPostBasic,
   ): Promise<IPostWithCarAndUser<ICar, IUser>> {
-    const post = await postRepository.updateById(postId, {
+    const car = await carRepository.getById(deletedPost.car_id);
+    if (!car) {
+      throw new ApiError(statusCode.NOT_FOUND, errorMessages.CAR_NOT_FOUND);
+    }
+    const {
+      rates: { usd, eur },
+    } = await currencyService.getExchangeRates();
+
+    const prices = await currencyService.calculatePrices(
+      car.enteredPrice,
+      car.enteredCurrency,
+      usd,
+      eur,
+    );
+    await carRepository.updateById(car._id, { prices });
+
+    const post = await postRepository.updateById(deletedPost._id, {
       isDeleted: false,
       status: EPostStatus.ACTIVE,
     });
@@ -275,6 +293,9 @@ class PostService {
       throw new ApiError(statusCode.NOT_FOUND, errorMessages.POST_NOT_FOUND);
     }
     return await this.fetchCarAndUserForPost(post);
+  }
+  public async saveView(postId: string): Promise<void> {
+    await viewRepository.save(postId);
   }
   private async fetchCarAndUserForPost(
     post: IPostBasic,

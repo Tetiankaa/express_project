@@ -151,8 +151,8 @@ class PostController {
 
   public async restorePost(req: Request, res: Response, next: NextFunction) {
     try {
-      const postId = req.params.id;
-      const post = await postService.restorePost(postId);
+      const deletedPost = req.res.locals.deletedPost as IPostBasic;
+      const post = await postService.restorePost(deletedPost);
       const response = PostMapper.toPrivatePost(post);
       res.status(statusCode.CREATED).json(response);
     } catch (e) {
@@ -199,6 +199,15 @@ class PostController {
       const post = await postService.getPostWithProfanityById(postId);
       const response = PostMapper.toPrivatePost(post);
       res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async saveView(req: Request, res: Response, next: NextFunction) {
+    try {
+      const postId = req.params.id;
+      await postService.saveView(postId);
+      res.sendStatus(statusCode.NO_CONTENT);
     } catch (e) {
       next(e);
     }
