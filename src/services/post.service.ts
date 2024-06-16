@@ -4,6 +4,7 @@ import { statusCode } from "../constants/status-codes.constant";
 import { EEmailType } from "../enums/email-type.enum";
 import { EPostStatus } from "../enums/post-status.enum";
 import { ERole } from "../enums/role.enum";
+import { ETimeLabel } from "../enums/time-label.enum";
 import { ApiError } from "../errors/api-error";
 import { TimeHelper } from "../helpers/time.helper";
 import { ICar } from "../interfaces/car.interface";
@@ -12,6 +13,7 @@ import { IListResponse } from "../interfaces/list-response.interface";
 import { IPostBasic, IPostWithCarAndUser } from "../interfaces/post.interface";
 import { IPrice } from "../interfaces/price.interface";
 import { IQuery } from "../interfaces/query.interface";
+import { ITimePeriod } from "../interfaces/time-periods.interface";
 import { ITokenResponse } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
 import { carRepository } from "../repositories/car.repository";
@@ -296,6 +298,39 @@ class PostService {
   }
   public async saveView(postId: string): Promise<void> {
     await viewRepository.save(postId);
+  }
+  public async getPostInfo(post: IPostBasic): Promise<any> {
+    const viewsPerDay: ITimePeriod = {
+      label: ETimeLabel.VIEWS_PER_DAY,
+      amount: 24,
+      unit: "hours",
+    };
+    const viewsPerWeek: ITimePeriod = {
+      label: ETimeLabel.VIEWS_PER_WEEK,
+      amount: 7,
+      unit: "days",
+    };
+    const viewsPerMonth: ITimePeriod = {
+      label: ETimeLabel.VIEWS_PER_MONTH,
+      amount: 1,
+      unit: "month",
+    };
+    const views = await viewRepository.getViewsByTimeFrame(post._id, [
+      viewsPerDay,
+      viewsPerWeek,
+      viewsPerMonth,
+    ]);
+    console.log(views);
+
+    const car = await carRepository.getById(post.car_id);
+    const avgPrice = await carRepository.getAveragePrice(car.enteredCurrency);
+    console.log(avgPrice);
+    const avgPriceByCarRegion = await carRepository.getAveragePriceByRegion(
+      car.region,
+      car.enteredCurrency,
+    );
+    //TODO add 2 digits after point
+    console.log(+avgPriceByCarRegion.toFixed(2));
   }
   private async fetchCarAndUserForPost(
     post: IPostBasic,

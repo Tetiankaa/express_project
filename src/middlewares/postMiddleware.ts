@@ -169,6 +169,7 @@ class PostMiddleware {
       if (!post) {
         throw new ApiError(statusCode.NOT_FOUND, errorMessages.POST_NOT_FOUND);
       }
+      req.res.locals.post = post as IPostBasic;
       next();
     } catch (e) {
       next(e);

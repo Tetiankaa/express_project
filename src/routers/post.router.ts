@@ -41,12 +41,14 @@ router.get(
   postMiddleware.isPostExistsAnsBelongsToUser,
   postController.getPrivatePostById,
 );
-router.get("/my/info/:id",
-    authMiddleware.verifyToken(ETokenType.ACCESS),
-    authMiddleware.isPremiumAccount,
-    commonMiddleware.isIdValid,
-    postController.
-    )
+router.get(
+  "/my/info/:id",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  authMiddleware.isPremiumAccount,
+  commonMiddleware.isIdValid,
+  postMiddleware.isPostExists,
+  postController.getPostInfo,
+);
 router.get(
   "/profanity-detected",
   authMiddleware.verifyToken(ETokenType.ACCESS),
