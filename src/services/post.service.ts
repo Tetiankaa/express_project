@@ -11,6 +11,7 @@ import { ICar } from "../interfaces/car.interface";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IListResponse } from "../interfaces/list-response.interface";
 import { IPostBasic, IPostWithCarAndUser } from "../interfaces/post.interface";
+import { IPostInfo } from "../interfaces/post-info.interface";
 import { IPrice } from "../interfaces/price.interface";
 import { IQuery } from "../interfaces/query.interface";
 import { ITimePeriod } from "../interfaces/time-periods.interface";
@@ -299,7 +300,9 @@ class PostService {
   public async saveView(postId: string): Promise<void> {
     await viewRepository.save(postId);
   }
-  public async getPostInfo(post: IPostBasic): Promise<any> {
+  public async getPostInfo(
+    post: IPostBasic,
+  ): Promise<{ post: IPostBasic; info: IPostInfo }> {
     const viewsPerDay: ITimePeriod = {
       label: ETimeLabel.VIEWS_PER_DAY,
       amount: 24,
@@ -320,17 +323,22 @@ class PostService {
       viewsPerWeek,
       viewsPerMonth,
     ]);
-    console.log(views);
 
     const car = await carRepository.getById(post.car_id);
     const avgPrice = await carRepository.getAveragePrice(car.enteredCurrency);
-    console.log(avgPrice);
     const avgPriceByCarRegion = await carRepository.getAveragePriceByRegion(
       car.region,
       car.enteredCurrency,
     );
-    //TODO add 2 digits after point
-    console.log(+avgPriceByCarRegion.toFixed(2));
+    return {
+      post,
+      info: {
+        ...views,
+        avgPrice,
+        avgPriceByCarRegion,
+        currency: car.enteredCurrency,
+      },
+    };
   }
   private async fetchCarAndUserForPost(
     post: IPostBasic,

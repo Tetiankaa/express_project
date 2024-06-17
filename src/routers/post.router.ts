@@ -46,7 +46,8 @@ router.get(
   authMiddleware.verifyToken(ETokenType.ACCESS),
   authMiddleware.isPremiumAccount,
   commonMiddleware.isIdValid,
-  postMiddleware.isPostExists,
+  postMiddleware.isPostExistsAnsBelongsToUser,
+  postMiddleware.isPostNotDeletedAndActive,
   postController.getPostInfo,
 );
 router.get(

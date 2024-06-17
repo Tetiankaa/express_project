@@ -215,10 +215,9 @@ class PostController {
   public async getPostInfo(req: Request, res: Response, next: NextFunction) {
     try {
       const post = req.res.locals.post as IPostBasic;
-       await postService.getPostInfo(post);
-      // const response = PostMappe
-      res.json("ok");
-    }catch (e) {
+      const result = await postService.getPostInfo(post);
+      res.json(result);
+    } catch (e) {
       next(e);
     }
   }
