@@ -1,5 +1,4 @@
 import Filter from "bad-words";
-
 import { ICar } from "../interfaces/car.interface";
 
 class ProfanityService {

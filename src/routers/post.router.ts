@@ -30,9 +30,9 @@ router.get(
   postController.getMyPosts,
 );
 router.get(
-  "/my/archive",
-  authMiddleware.verifyToken(ETokenType.ACCESS),
-  postController.getMyArchivePosts,
+  "/:id",
+  commonMiddleware.isIdValid,
+  postController.getPublicPostById,
 );
 router.get(
   "/my/:id",
@@ -40,6 +40,50 @@ router.get(
   commonMiddleware.isIdValid,
   postMiddleware.isPostExistsAnsBelongsToUser,
   postController.getPrivatePostById,
+);
+router.delete(
+    "/my/:id",
+    authMiddleware.verifyToken(ETokenType.ACCESS),
+    commonMiddleware.isIdValid,
+    postMiddleware.isPostExistsAnsBelongsToUser,
+    postController.deletePostById,
+);
+router.delete(
+    "/my/forever/:id",
+    authMiddleware.verifyToken(ETokenType.ACCESS),
+    commonMiddleware.isIdValid,
+    postMiddleware.isPostExistsAnsBelongsToUser,
+    postController.deleteForeverPostById,
+);
+router.get(
+  "/my/archive",
+  authMiddleware.verifyToken(ETokenType.ACCESS),
+  postController.getMyArchivePosts,
+);
+router.put(
+    "/my/restore/:id",
+    authMiddleware.verifyToken(ETokenType.ACCESS),
+    commonMiddleware.isIdValid,
+    postMiddleware.isPostDeletedAndNotActive,
+    postController.restorePost,
+);
+router.put(
+    "/my/:id",
+    authMiddleware.verifyToken(ETokenType.ACCESS),
+    commonMiddleware.isIdValid,
+    postMiddleware.isPostNotDeletedAndActive,
+    commonMiddleware.isBodyValid(CarValidator.update),
+    commonMiddleware.validatePriceAndCurrency,
+    postMiddleware.calculatePrices,
+    postController.updatePost,
+);
+router.patch(
+    "/my/resubmit-after-profanity/:id",
+    authMiddleware.verifyToken(ETokenType.ACCESS),
+    commonMiddleware.isIdValid,
+    postMiddleware.isResubmissionAllowed,
+    commonMiddleware.isBodyValid(CarValidator.updateAfterProfanity),
+    postController.updatePostAfterProfanity,
 );
 router.get(
   "/my/info/:id",
@@ -50,6 +94,7 @@ router.get(
   postMiddleware.isPostNotDeletedAndActive,
   postController.getPostInfo,
 );
+
 router.get(
   "/profanity-detected",
   authMiddleware.verifyToken(ETokenType.ACCESS),
@@ -63,49 +108,5 @@ router.get(
   commonMiddleware.isIdValid,
   postController.getPostWithProfanityById,
 );
-router.get(
-  "/:id",
-  commonMiddleware.isIdValid,
-  postController.getPublicPostById,
-);
-router.delete(
-  "/my/:id",
-  authMiddleware.verifyToken(ETokenType.ACCESS),
-  commonMiddleware.isIdValid,
-  postMiddleware.isPostExistsAnsBelongsToUser,
-  postController.deletePostById,
-);
-router.delete(
-  "/my/forever/:id",
-  authMiddleware.verifyToken(ETokenType.ACCESS),
-  commonMiddleware.isIdValid,
-  postMiddleware.isPostExistsAnsBelongsToUser,
-  postController.deleteForeverPostById,
-);
-router.put(
-  "/my/:id",
-  authMiddleware.verifyToken(ETokenType.ACCESS),
-  commonMiddleware.isIdValid,
-  postMiddleware.isPostNotDeletedAndActive,
-  commonMiddleware.isBodyValid(CarValidator.update),
-  commonMiddleware.validatePriceAndCurrency,
-  postMiddleware.calculatePrices,
-  postController.updatePost,
-);
-router.put(
-  "/my/restore/:id",
-  authMiddleware.verifyToken(ETokenType.ACCESS),
-  commonMiddleware.isIdValid,
-  postMiddleware.isPostDeletedAndNotActive,
-  postController.restorePost,
-);
 
-router.patch(
-  "/my/resubmit-after-profanity/:id",
-  authMiddleware.verifyToken(ETokenType.ACCESS),
-  commonMiddleware.isIdValid,
-  postMiddleware.isResubmissionAllowed,
-  commonMiddleware.isBodyValid(CarValidator.updateAfterProfanity),
-  postController.updatePostAfterProfanity,
-);
 export const postRouter = router;
